@@ -21,6 +21,7 @@ init:
     EI ;Enableing Respoding To Said Exceptions
 inf:
     ;wait for Exceptions to be raised
+    ;do keyboard pulling
     JMP inf
 
 Int0:
