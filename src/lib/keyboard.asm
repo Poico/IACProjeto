@@ -1,5 +1,8 @@
 ;keyboard.asm
 
+KEYO		EQU 0C000H
+KEYI		EQU 0E000H
+
 ;returns key in R0
 get_key:
 	PUSH R1 	; keyboard output pointer (write test)
@@ -28,12 +31,12 @@ get_key_loop:
 	JMP get_key_end
 	
 get_key_dec: 			; decode
-	XOR R5, R5
+	XOR R5, R5			; R5 = 0
 	
-get_key_dlp:
+get_key_dlp:			; get bit position
 	ADD R5, 1			; R5++
 	SHR R0, 1			; R0 >>= 1
-	JNE get_key_dlp
+	JNE get_key_dlp		; while (R0) goto get_key_dlp
 
 get_key_df:
 	SUB R5, 1			; R5-- (it's in [1,4])
@@ -49,3 +52,6 @@ get_key_end:
 	POP R1
 	RET
 
+;returns bitmask with pressed keys (ghosts too) in R0
+get_keys: ;WIP
+	
