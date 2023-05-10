@@ -3,7 +3,7 @@
 KEYO		EQU 0C000H
 KEYI		EQU 0E000H
 
-;returns key in R0
+;returns first pressed key in R0
 get_key:
 	PUSH R1 	; keyboard output pointer (write test)
 	PUSH R2 	; keyboard input pointer (read key)
@@ -51,7 +51,3 @@ get_key_end:
 	POP R2
 	POP R1
 	RET
-
-;returns bitmask with pressed keys (ghosts too) in R0
-get_keys: ;WIP
-	
