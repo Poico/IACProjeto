@@ -1,0 +1,5 @@
+Just give it the absulute path then format it to this
+PALLET_NAME:
+WORD PALLETE GOES HERE
+SPRITE_NAME:
+WORD IMAGE GOES HERE
