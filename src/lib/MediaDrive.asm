@@ -48,7 +48,7 @@ MEDIA_HEIGHT EQU 64
 ;Input nothing
 ;Output nothing
 ;Clear screen and removes warning
-Inicialize:
+MEDIA_INIT:
     PUSH R0
     MOV R0,1
     MOV [MEDIA_CENTER + 10H],R0;AutoMov enabled some draw call need this on
@@ -62,7 +62,7 @@ Inicialize:
 ;Fills the background whit a color
 ;[WARNING:TALK TO TEACHER ABOUT THE N-PIXEL THING]
 ;Best to not use this
-CLRBACK:
+MEDIA_CLRBACK:
 
     PUSH R1
     PUSH R2
@@ -70,7 +70,7 @@ CLRBACK:
     MOV R1,MEDIA_WIDTH
     MOV R2,MEDIA_HEIGHT
     MUL R1,R2 ;Get Total Pixel Count
-CLRBACK_LOOP:
+MEDIA_CLRBACK_LOOP:
     MOV [MEDIA_CENTER + 12H],R0 ;Draw And Move
     SUB R0,1
     CMP R0,0
