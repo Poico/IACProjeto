@@ -1,10 +1,378 @@
+;test_main.asm - Random testing
 
-	;test_include.asm is only comments
-	;fun times
-	
-	;nigger
-	PLACE 0
+;draws a filling progress bar (5x10) at (3,3)
+
+VIDEO 		EQU 8000H
+WIDTH		EQU 32
+HEIGHT		EQU 64
+BWIDTH 		EQU 5
+BHEIGHT		EQU 20
+CORNER_X	EQU 3
+CORNER_Y	EQU 3
+MAX			EQU 100
+
+PLACE 0
 entry:
+	MOV SP, stack_top
+
+	CALL Inicialize
+
+	MOV R4, 0FF00H		; color
+	XOR R5, R5			; score
+	MOV R6, R5			; fillPixels
+	MOV R7, R5			; maxX
+	MOV R8, R5			; maxY
+	MOV R9, R5			; helper
+	
+loop:
+	CALL sleep
+	MOV R6, R5			; fillPixels = score * HEIGHT * WIDTH / MAX
+	MOV R9, BHEIGHT
+	MUL R6, R9
+	MOV R9, BWIDTH
+	MUL R6, R9
+	MOV R9, MAX
+	DIV R6, R9
+	
+	MOV R7, R6			; maxX = fillPixels % BWIDTH
+	MOV R9, BWIDTH
+	MOD R7, R9
+	
+	MOV R8, R6			; maxY = fillPixels / BWIDTH
+	DIV R8, R9
+	
+	; drawing
+	; draw full part first
+	MOV [MEDIA_CENTER + 02H],R0;clear screen(s)
+	MOV R0, CORNER_X
+	MOV R1, CORNER_Y
+	MOV R2, BWIDTH
+	MOV R3, R8			
+	CMP R3, 0
+	JEQ draw_partial	; if (height == 0) only draw partial
+	SUB R3, 1			; height = maxY - 1
+	JEQ draw_partial
+;Input R0(X) R1(Y) R2(width) R3(height) R4(Color)
+	CALL DRAW_RECT
+	
+	
+draw_partial:
+	; TODO: Implement
+
+loop_end:
+	ADD R5, 1			; score++
+	MOV R10, MAX
+	CMP R5, R10			;
+	JNE loop
+	MOV R5, 0
+	JMP loop
+	
+
+sleep:
+	PUSH R0
+	MOV R0, 0FFFFH
+	
+sleep_loop:
+	SUB R0, 1
+	JNE sleep_loop
+	
+	POP R0
+	RET
+
 end:
 	JMP end
-	
+
+;MediaDrive.asm
+
+MAN_PALLET:
+;    0      1      2      3      4
+WORD 0FFFFH,00000H,0F000H,0FF00H,0F0DFH
+MAN_SPRITE:
+WORD 00007H,00020H
+,00000H,01100H,01111H,01111H,01111H,01111H,01111H
+,02220H,01100H,00111H,00000H,00000H,01111H,01111H
+,00020H,01102H,00011H,03333H,00333H,01110H,01111H
+,02220H,01100H,03001H,03333H,03333H,01100H,01111H
+,00020H,01102H,03300H,03333H,03333H,01003H,01111H
+,02220H,01100H,03330H,03333H,03333H,01033H,01111H
+,00000H,01100H,03330H,03333H,03333H,00033H,01000H
+,02220H,01100H,04440H,04444H,03333H,03333H,01033H
+,00020H,01102H,04440H,04444H,03334H,03333H,01033H
+,02220H,01100H,04440H,04444H,03334H,03333H,01033H
+,00020H,01102H,04440H,04444H,03334H,03333H,01033H
+,00000H,01100H,04440H,04444H,03333H,03333H,01033H
+,00020H,01102H,03330H,03333H,03333H,03333H,01033H
+,00020H,01102H,03330H,03333H,03333H,03333H,01033H
+,00020H,01102H,03330H,03333H,03333H,03333H,01033H
+,02200H,01100H,03330H,03333H,03333H,03333H,01033H
+,00000H,01100H,03330H,03333H,03333H,03333H,01033H
+,00020H,01102H,03330H,03333H,03333H,03333H,01033H
+,00020H,01102H,03330H,03333H,03333H,00033H,01000H
+,02220H,01102H,03330H,03333H,03333H,01033H,01111H
+,00020H,01102H,03330H,03333H,03333H,01033H,01111H
+,00000H,01100H,03330H,00003H,03300H,01033H,01111H
+,01111H,01111H,03330H,00003H,03300H,01033H,01111H
+,01111H,01111H,03330H,00003H,03300H,01033H,01111H
+,01111H,01111H,03330H,00003H,03300H,01033H,01111H
+,01111H,01111H,03330H,00003H,03300H,01033H,01111H
+,01111H,01111H,03330H,00003H,03300H,01033H,01111H
+,01111H,01111H,03330H,00003H,03300H,01033H,01111H
+,01111H,01111H,03330H,00003H,03300H,01033H,01111H
+,01111H,01111H,03330H,00003H,03300H,01033H,01111H
+,01111H,01111H,03330H,00003H,03300H,01033H,01111H
+,01111H,01111H,00000H,00000H,00000H,01000H,01111H
+GLYPHS:
+;    0      1      2      3      4      5      6      7      8      9      A      B      C      D      E      F
+WORD 07B6FH,02492H,073E7H,079E7H,049EDH,079CFH,07BCFH,04927H,07BEFH,049EFH,05BEFH,03AEBH,0624EH,03B6BH,073CFH,013CFH
+MEDIA_CENTER EQU 6000H
+MEDIA_MEMMORY EQU 8000H
+MEDIA_WIDTH EQU 32
+MEDIA_HEIGHT EQU 64
+
+;Input nothing
+;Output nothing
+;Clear screen and removes warning
+Inicialize:
+    PUSH R0
+    MOV R0,1
+    MOV [MEDIA_CENTER + 10H],R0;AutoMov enabled some draw call need this on
+    MOV [MEDIA_CENTER + 02H],R0;clear screen(s)
+    MOV [MEDIA_CENTER + 40H],R0;remove warning
+    POP R0
+    RET
+
+;Input R0(Color)
+;Output nothing
+;Fills the background whit a color
+;[WARNING:TALK TO TEACHER ABOUT THE N-PIXEL THING]
+;Best to not use this
+CLRBACK:
+
+    PUSH R1
+    PUSH R2
+
+    MOV R1,MEDIA_WIDTH
+    MOV R2,MEDIA_HEIGHT
+    MUL R1,R2 ;Get Total Pixel Count
+CLRBACK_LOOP:
+    MOV [MEDIA_CENTER + 12H],R0 ;Draw And Move
+    SUB R0,1
+    CMP R0,0
+    JNZ CLRBACK_LOOP
+
+    POP R2
+    POP R1
+
+    RET
+
+
+;Input R0(X) R1(Y) R2(Color)
+;Output nothing
+;Draws a pixel
+DRAW_PIXEL:
+    MOV [MEDIA_CENTER+0CH],R0;Set X
+    MOV [MEDIA_CENTER+0AH],R1;Set Y
+    MOV [MEDIA_CENTER+12H],R2;Draw
+    RET
+
+;Input R0(ID)
+;Output nothing
+;Sets Background
+SET_BACK:
+    MOV [MEDIA_CENTER+42H],R0;Bruh
+    RET
+
+;Input R0(X) R1(Y) R2(width) R3(height) R4(Color)
+;Output nothing
+;Draws a rectagle
+DRAW_RECT:
+
+    PUSH R1 
+    PUSH R3 
+    PUSH R5 
+
+DRAW_RECT_height:
+    MOV [MEDIA_CENTER+0CH],R0;Set X
+    MOV [MEDIA_CENTER+0AH],R1;Set Y
+    MOV R5,R2
+
+DRAW_RECT_width:
+    MOV [MEDIA_CENTER+12H],R4;Draw
+    SUB R5,1
+    CMP R5,0
+    JNZ DRAW_RECT_width
+
+    SUB R3,1
+    ADD R1,1
+    CMP R3,0
+    JNZ DRAW_RECT_height
+
+    POP R5
+    POP R3
+    POP R1
+
+    RET
+
+;Input R0(X) R1(Y) R2(Sprite Adress) R3(Sprite Pallet)
+;Output nothing
+;Draws A Sprite From and Adress
+DRAW_SPRITE:
+
+    PUSH R1
+    PUSH R2
+    PUSH R4
+    PUSH R5
+    PUSH R6
+    PUSH R7
+    PUSH R8
+    PUSH R9
+    PUSH R10
+
+    MOV R8,0FH;MASK
+    MOV R4,[R2 + 0];get width
+    MOV R5,[R2 + 2];get height
+    ADD R2,4;set to the sheet area
+
+DRAW_SPRITE_height_loop:
+    MOV [MEDIA_CENTER+0CH],R0;Set X
+    MOV [MEDIA_CENTER+0AH],R1;Set Y
+    MOV R10,R4
+
+DRAW_SPRITE_width_loop:
+    MOV R6,[R2];get sheet
+
+    ;1 pixel
+
+    MOV R7,R6
+    AND R7,R8
+    SHL R7,1
+    MOV R9,[R7+R3]
+    MOV [MEDIA_CENTER+12H],R9;Draw
+    SHR R6,4;
+
+    ;2 pixel
+
+    MOV R7,R6
+    AND R7,R8
+    SHL R7,1
+    MOV R9,[R7+R3]
+    MOV [MEDIA_CENTER+12H],R9;Draw
+    SHR R6,4;
+
+    ;3 pixel
+
+    MOV R7,R6
+    AND R7,R8
+    SHL R7,1
+    MOV R9,[R7+R3]
+    MOV [MEDIA_CENTER+12H],R9;Draw
+    SHR R6,4;
+
+    ;4 pixel
+
+    MOV R7,R6
+    AND R7,R8
+    SHL R7,1
+    MOV R9,[R7+R3]
+    MOV [MEDIA_CENTER+12H],R9;Draw
+
+    ADD R2,2
+    SUB R10,1
+    CMP R10,0
+    JNZ DRAW_SPRITE_width_loop
+    
+    ADD R1,1
+    SUB R5,1
+    CMP R5,0
+    JNZ DRAW_SPRITE_height_loop
+
+    POP R10
+    POP R9
+    POP R8
+    POP R7
+    POP R6
+    POP R5
+    POP R4
+    POP R2
+    POP R1
+
+    RET
+
+;Input R0(X) R1(Y) R2(Color) R3(number)
+;Output nothing
+;Draws A Numberic Glyph From and Adress
+DRAW_GPLYPH:
+
+    PUSH R1
+    PUSH R3
+    PUSH R4
+    PUSH R6
+    PUSH R7
+    PUSH R8
+
+    MOV R6,GLYPHS
+    SHL R3,1
+    MOV R4,[R3 + R6];load GLYPHS
+    MOV R6,0000H
+    MOV R8,5
+DRAW_GPLYPH_height_loop:
+    MOV [MEDIA_CENTER+0CH],R0;Set X
+    MOV [MEDIA_CENTER+0AH],R1;Set Y
+    MOV R7,3
+DRAW_GPLYPH_width_loop:
+    SHR R4,1
+    JNC DRAW_GPLYPH_no_carry
+    MOV [MEDIA_CENTER+12H],R2;Draw Color
+    JMP DRAW_GPLYPH_move
+DRAW_GPLYPH_no_carry:
+    MOV [MEDIA_CENTER+12H],R6;Draw nothing
+DRAW_GPLYPH_move:
+    SUB R7,1
+    CMP R7,0
+    JNZ DRAW_GPLYPH_width_loop
+    ADD R1,1
+    SUB R8,1
+    CMP R8,0
+    JNZ DRAW_GPLYPH_height_loop
+
+    POP R8
+    POP R7
+    POP R6
+    POP R4
+    POP R3
+    POP R1
+
+    RET
+
+;Input R0(ID)
+;Output nothing
+;Plays a video/sound
+MEDIA_PLAY:
+    MOV [MEDIA_CENTER+5AH],R0
+    RET
+
+;Input R0(ID)
+;Output nothing
+;Plays a video/sound on loop
+MEDIA_LOOP:
+    MOV [MEDIA_CENTER+5CH],R0
+    RET
+
+;Input R0(ID)
+;Output nothing
+;pauses a video/sound
+MEDIA_PAUSE:
+    MOV [MEDIA_CENTER+5EH],R0
+    RET
+
+;Input R0(ID)
+;Output nothing
+;unpauses a video/sound
+MEDIA_UNPAUSE:
+    MOV [MEDIA_CENTER+60H],R0
+    RET
+
+PLACE 3800H
+STACK 07FEH
+PLACE 3FFEH
+stack_top:
