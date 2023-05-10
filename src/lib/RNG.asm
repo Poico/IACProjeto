@@ -1,6 +1,9 @@
 ;RNG.asm
 
-;place After MainLogic
+;this is where the RNG value is stored
+RNG_ADDRESS:
+PLACE RNG_ADDRESS
+WORD 01B1EH ;Starting value can be anything
 
 ;Input Nothing
 ;Output R0 random value
