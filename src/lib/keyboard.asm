@@ -1,4 +1,4 @@
-;keyboard.asm
+; Keyboard.asm - Keyboard interfacing functions
 
 KEYO		EQU 0C000H
 KEYI		EQU 0E000H
