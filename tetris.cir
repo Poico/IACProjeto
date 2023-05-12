@@ -2,7 +2,7 @@
   "comment" : "This is a JSON file describing a digital circuit, which can be loaded into the SEPE (Simulador Especial Para Ensino), a computer architecture simulator.",
   "savedWithSimulatorVersion" : "2.2.0",
   "savedWithSimulatorBuildOn" : "2023-05-01  at  07:54:14",
-  "editorLocked" : true,
+  "editorLocked" : false,
   "startAutomatically" : true,
   "showConnectionColors" : false,
   "zoomScale" : 90,
@@ -657,7 +657,7 @@
       "sourcePinID" : 96,
       "targetPinID" : 2,
       "points" : [ {
-        "X" : 127,
+        "X" : 89,
         "Y" : 33
       }, {
         "X" : 137,
@@ -679,7 +679,7 @@
       "sourcePinID" : 99,
       "targetPinID" : 3,
       "points" : [ {
-        "X" : 112,
+        "X" : 110,
         "Y" : 78
       }, {
         "X" : 180,
@@ -695,7 +695,7 @@
       "sourcePinID" : 102,
       "targetPinID" : 4,
       "points" : [ {
-        "X" : 116,
+        "X" : 97,
         "Y" : 124
       }, {
         "X" : 137,
@@ -717,7 +717,7 @@
       "sourcePinID" : 109,
       "targetPinID" : 5,
       "points" : [ {
-        "X" : 103,
+        "X" : 88,
         "Y" : 169
       }, {
         "X" : 159,
@@ -1450,8 +1450,8 @@
     "positionX" : 696,
     "positionY" : 381,
     "simGuiVisibleInSimulation" : true,
-    "simGuiXRelative" : 188,
-    "simGuiYRelative" : 586,
+    "simGuiXRelative" : 182,
+    "simGuiYRelative" : 303,
     "simGuiWidth" : 136,
     "simGuiHeight" : 145,
     "columns" : 4,
@@ -1639,13 +1639,13 @@
   }, {
     "className" : "ModuleRealTimeClock",
     "elementID" : 95,
-    "name" : "Relógio asteroides",
+    "name" : "Draw Clock",
     "numberOfBits" : 1,
     "moduleDelay" : 5,
     "positionX" : 23,
     "positionY" : 23,
     "simGuiVisibleInSimulation" : false,
-    "clockPeriod" : 400,
+    "clockPeriod" : 100,
     "startAutomatically" : true,
     "simulationMaster" : false,
     "clockOutPin" : {
@@ -1662,7 +1662,7 @@
   }, {
     "className" : "ModuleRealTimeClock",
     "elementID" : 98,
-    "name" : "Relógio sondas",
+    "name" : "Animation Clock",
     "numberOfBits" : 1,
     "moduleDelay" : 5,
     "positionX" : 23,
@@ -1685,13 +1685,13 @@
   }, {
     "className" : "ModuleRealTimeClock",
     "elementID" : 101,
-    "name" : "Relógio energia",
+    "name" : "Gravity Clock",
     "numberOfBits" : 1,
     "moduleDelay" : 5,
     "positionX" : 23,
     "positionY" : 114,
     "simGuiVisibleInSimulation" : false,
-    "clockPeriod" : 3000,
+    "clockPeriod" : 250,
     "startAutomatically" : true,
     "simulationMaster" : false,
     "clockOutPin" : {
@@ -1708,13 +1708,13 @@
   }, {
     "className" : "ModuleRealTimeClock",
     "elementID" : 108,
-    "name" : "Relógio nave",
+    "name" : "Input Clock",
     "numberOfBits" : 1,
     "moduleDelay" : 5,
     "positionX" : 23,
     "positionY" : 159,
     "simGuiVisibleInSimulation" : false,
-    "clockPeriod" : 300,
+    "clockPeriod" : 500,
     "startAutomatically" : true,
     "simulationMaster" : false,
     "clockOutPin" : {

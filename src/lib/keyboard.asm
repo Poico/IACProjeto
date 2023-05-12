@@ -1,4 +1,4 @@
-; Keyboard.asm - Keyboard interfacing functions
+; keyboard.asm - Keyboard interfacing functions
 
 _KB_KEYO	EQU 0C000H ; write to test
 _KB_KEYI	EQU 0E000H ; read to check
