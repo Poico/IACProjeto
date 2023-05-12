@@ -1,7 +1,5 @@
 ;test_main.asm - Random testing
 
-;draws a filling progress bar (5x10) at (3,3)
-
 PLACE 0
 entry:
 	MOV SP, stack_top
@@ -15,8 +13,18 @@ entry:
 	
 loop:
 	CALL sleep
-	CALL MD_ClearScrean
+	CALL MD_ClearScreen
 	CALL SB_DrawSB
+	
+	PUSH R0
+	PUSH R1
+	MOV R0, 0AH
+	CALL KB_IsKeyPressed
+	CMP R1, 0
+	POP R1
+	POP R0
+	JEQ loop
+	
 	ADD R0, 1			; score++
 	MOV R10, MAX
 	CMP R0, R10			; loop till max
@@ -41,6 +49,7 @@ end:
 
 #include:../lib/MediaDrive.asm
 #include:../lib/ScoreBar.asm
+#include:../lib/keyboard.asm
 
 PLACE 3800H
 STACK 07FEH

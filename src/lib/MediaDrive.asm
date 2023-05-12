@@ -60,8 +60,8 @@ MD_InitMedia:
 ;Input nothing
 ;Output nothing
 ;Clear screen
-MD_ClearScrean:
-    MOV [_MD_Commands + 02H],R0;clear screen(s)
+MD_ClearScreen:
+    MOV [_MD_Commands + 02H],R0 ;clear screen(s)
     RET
 
 ;Input R0(Color)
