@@ -39,7 +39,16 @@ _SB_DrawSB_calcBounds:
 	MOV R7, R5			; maxY = fillPixels / BWIDTH
 	DIV R7, R10
 	
-_SB_Draw_SB_updateColor:
+_SB_DrawSB_clearBar:
+	MOV R0, CORNER_X
+	MOV R1, CORNER_Y
+	MOV R2, BWIDTH
+	MOV R3, BHEIGHT
+	MOV R4, 0
+	;Input R0(X) R1(Y) R2(width) R3(height) R4(Color)
+	CALL MD_DrawRect
+	
+_SB_DrawSB_updateColor:
 	MOV R4, [_SB_Color]
 	MOV R5, R4
 	MOV R10, 1

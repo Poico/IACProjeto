@@ -13,8 +13,15 @@ entry:
 	
 loop:
 	CALL sleep
-	CALL MD_ClearScreen
+	;CALL MD_ClearScreen
 	CALL SB_DrawSB
+
+	PUSH R0
+	MOV R0, 1
+	MOV R1, 14
+	MOV R2, 0FFF0H
+	CALL MD_DrawPixel
+	POP R0
 	
 	PUSH R0
 	PUSH R1
