@@ -2,7 +2,7 @@
   "comment" : "This is a JSON file describing a digital circuit, which can be loaded into the SEPE (Simulador Especial Para Ensino), a computer architecture simulator.",
   "savedWithSimulatorVersion" : "2.2.0",
   "savedWithSimulatorBuildOn" : "2023-05-01  at  07:54:14",
-  "editorLocked" : false,
+  "editorLocked" : true,
   "startAutomatically" : true,
   "showConnectionColors" : false,
   "zoomScale" : 90,
@@ -10,14 +10,14 @@
   "primary screen width" : 1366,
   "primary screen height" : 768,
   "window" : {
-    "X absolute" : -8,
-    "Y absolute" : -8,
-    "X relative" : -8,
-    "Y relative" : -8,
-    "width" : 1382,
-    "height" : 744,
+    "X absolute" : -7,
+    "Y absolute" : 0,
+    "X relative" : -7,
+    "Y relative" : 0,
+    "width" : 1380,
+    "height" : 735,
     "leftRightDividerLocation" : 211,
-    "topBottomDividerLocation" : 582
+    "topBottomDividerLocation" : 573
   },
   "connections" : [ {
     "className" : "Connection",
@@ -657,7 +657,7 @@
       "sourcePinID" : 96,
       "targetPinID" : 2,
       "points" : [ {
-        "X" : 89,
+        "X" : 92,
         "Y" : 33
       }, {
         "X" : 137,
@@ -679,7 +679,7 @@
       "sourcePinID" : 99,
       "targetPinID" : 3,
       "points" : [ {
-        "X" : 110,
+        "X" : 118,
         "Y" : 78
       }, {
         "X" : 180,
@@ -695,7 +695,7 @@
       "sourcePinID" : 102,
       "targetPinID" : 4,
       "points" : [ {
-        "X" : 97,
+        "X" : 102,
         "Y" : 124
       }, {
         "X" : 137,
@@ -717,7 +717,7 @@
       "sourcePinID" : 109,
       "targetPinID" : 5,
       "points" : [ {
-        "X" : 88,
+        "X" : 93,
         "Y" : 169
       }, {
         "X" : 159,
@@ -1516,17 +1516,13 @@
     "moduleDelay" : 5,
     "positionX" : 576,
     "positionY" : 159,
-    "simGuiVisibleInSimulation" : true,
-    "simGuiXRelative" : 907,
-    "simGuiYRelative" : 6,
-    "simGuiWidth" : 364,
-    "simGuiHeight" : 729,
+    "simGuiVisibleInSimulation" : false,
     "columnAddressNBits" : 5,
     "lineAddressNBits" : 6,
     "windowScreenWidthPixels" : 512,
     "windowScreenHeightixels" : 1024,
     "defaultPenColor" : 65280,
-    "image paths" : [ "../../../Downloads/pixil-frame-0_2.png" ],
+    "image paths" : [ "extras/background.png" ],
     "addressable data" : {
       "className" : "ModuleExtensionMemoryMediaCenter",
       "elementID" : 83,
