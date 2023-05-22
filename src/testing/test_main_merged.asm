@@ -367,18 +367,75 @@ CORNER_X	EQU 25
 CORNER_Y	EQU 18
 MAX			EQU 100
 
+; BCD.asm - Binary Coded Decimal library
+
+_BC_HexOut EQU 0A000H
+
+;returns value of R0 in R1 as BCD
+BC_ToBCD:
+	PUSH R0
+					; Build BCD directly to R1
+	PUSH R2			; Remainder divider
+	PUSH R3			; Remainder store
+	PUSH R4			; Iter counter
+	
+	XOR R1, R1		; Clear output
+	MOV R2, 10000	; Initialize clamp divider
+	MOD R0, R2		; Clamp input to allowed values
+	
+	MOV R2, 10		; Initialize divider
+	MOV R4, 4		; Initialize counter
+	
+	
+_BC_ToBCD_loop:
+	SHR R1, 4		; Shift output to clear space
+	MOV R3, R0		; Copy input
+	MOD R3, R2		; Get %10
+	SHL R3,	12		; Shift value to highest 4 bits
+	ADD R1, R3		; Add to output
+	DIV R0, R2		; Divide (shift) input
+	SUB R4, 1		; Decrement counter
+	JNZ _BC_ToBCD_loop
+	
+_BC_ToBCD_end:
+	POP R4
+	POP R3
+	POP R2
+	POP R0
+	RET
+	
+	
+;Write R0 to hexadecimal display
+BC_WriteToDisp:
+	PUSH R0
+	MOV R0, _BC_HexOut	; Display pointer
+	MOV [R0], R1		; Write value
+	POP R0
+	RET
 
 ; score in R0
 SB_DrawSB:
 	PUSH R0				; make a backup
-	PUSH R1
-	PUSH R2
-	PUSH R3
-	PUSH R4
+	PUSH R1				; <draw call args>
+	PUSH R2				; <draw call args>
+	PUSH R3				; <draw call args>
+	PUSH R4				; <draw call args>
 	PUSH R5				; fillPixels / colorTmp
-	PUSH R6				; maxX
+	PUSH R6				; maxX / conversion bkp
 	PUSH R7				; maxY
 	PUSH R10			; aux
+	
+_SB_DrawSB_writePercent:
+	MOV R6, R0			; backup
+	MOV R10, 100
+	MUL R0, R10			; R0 = (R0 * 100) / MAX (to get percent)
+	MOV R10, MAX
+	DIV R0, R10
+	
+	CALL BC_ToBCD
+	CALL BC_WriteToDisp
+	
+	MOV R0, R6			; restore
 	
 _SB_DrawSB_calcFill:
 	MOV R5, R0			; fillPixels = score * HEIGHT * WIDTH / MAX
@@ -460,7 +517,7 @@ _SB_DrawSB_End:
 	
 _SB_Color:
 	WORD 0FF00H
-; Keyboard.asm - Keyboard interfacing functions
+; keyboard.asm - Keyboard interfacing functions
 
 _KB_KEYO	EQU 0C000H ; write to test
 _KB_KEYI	EQU 0E000H ; read to check

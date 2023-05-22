@@ -9,18 +9,31 @@ CORNER_Y	EQU 18
 MAX			EQU 100
 
 #include:MediaDrive.asm
+#include:BCD.asm
 
 ; score in R0
 SB_DrawSB:
 	PUSH R0				; make a backup
-	PUSH R1
-	PUSH R2
-	PUSH R3
-	PUSH R4
+	PUSH R1				; <draw call args>
+	PUSH R2				; <draw call args>
+	PUSH R3				; <draw call args>
+	PUSH R4				; <draw call args>
 	PUSH R5				; fillPixels / colorTmp
-	PUSH R6				; maxX
+	PUSH R6				; maxX / conversion bkp
 	PUSH R7				; maxY
 	PUSH R10			; aux
+	
+_SB_DrawSB_writePercent:
+	MOV R6, R0			; backup
+	MOV R10, 100
+	MUL R0, R10			; R0 = (R0 * 100) / MAX (to get percent)
+	MOV R10, MAX
+	DIV R0, R10
+	
+	CALL BC_ToBCD
+	CALL BC_WriteToDisp
+	
+	MOV R0, R6			; restore
 	
 _SB_DrawSB_calcFill:
 	MOV R5, R0			; fillPixels = score * HEIGHT * WIDTH / MAX
