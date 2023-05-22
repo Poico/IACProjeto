@@ -1,0 +1,63 @@
+;Manager.asm
+
+
+;Sets Main Menu Background
+MAN_MainMenu:
+
+	PUSH R0
+	
+	MOV R0 , 0 ; Set MainMenuBackground (ID-0)
+	CALL MD_SetBack ; Call Function Set
+	
+	POP R0
+	
+	RET
+	
+;Sets Play Menu Background
+MAN_PlayMenu:
+
+	PUSH R0
+	
+	MOV R0 , 1 ; Set PlayMenuBackground (ID-1)
+	CALL MD_SetBack ; Call Function Set
+	
+	POP R0
+	
+	RET
+	
+;Sets Pause Menu Background
+MAN_PauseMenu:
+
+	PUSH R0
+	
+	MOV R0 , 2 ; Set PlayPauseMenu (ID-2)
+	CALL MD_SetBack ; Call Function Set
+	; TODO: PAUSE Clocks
+	POP R0
+	
+	RET
+
+;Plays One Time Sound of the Line Clear
+MAN_LineCleared:
+
+	PUSH R0 ; ID for the Sound
+	
+	MOV R0 , 1 ; Set LineClearedSound (ID-1)
+	CALL MD_Play
+	
+	POP R0
+	
+	RET
+
+;Plays Background Music on Loop 
+MAN_BackgroundMusic:
+
+	PUSH R0 ; ID for the Music
+	
+	MOV R0, 0 ; Set BackgroundMusic (ID-0)
+	CALL MD_Loop
+	
+	POP R0
+	
+	RET
+

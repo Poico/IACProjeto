@@ -102,9 +102,9 @@ MD_DrawPixel:
 ;Output nothing
 ;Sets Background
 MD_SetBack:
-    MOV [_MD_Commands+42H],R0;Bruh
+    MOV [_MD_Commands+42H],R0 ;Set Background with the adress of MediaCenter plus the command to set background
     RET
-
+	
 ;Input R0(X) R1(Y) R2(width) R3(height) R4(Color)
 ;Output nothing
 ;Draws a rectagle
@@ -274,12 +274,14 @@ MD_Play:
     MOV [_MD_Commands+5AH],R0
     RET
 
+
 ;Input R0(ID)
 ;Output nothing
 ;Plays a video/sound on loop
 MD_Loop:
     MOV [_MD_Commands+5CH],R0
     RET
+
 
 ;Input R0(ID)
 ;Output nothing
