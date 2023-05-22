@@ -1,5 +1,10 @@
 ;Manager.asm
 
+#include:Interrupts.asm
+#include:MediaDrive.asm
+
+_MAN_TogglePause:
+	WORD 0
 
 ;Sets Main Menu Background
 MAN_MainMenu:
@@ -26,16 +31,33 @@ MAN_PlayMenu:
 	RET
 	
 ;Sets Pause Menu Background
-MAN_PauseMenu:
+MAN_PauseClick:
 
 	PUSH R0
+	PUSH R1
 	
+	MOV R1 , _MAN_TogglePause
+	MOV R1, [R1]
+	CMP R1 , 0
+	JNZ _MAN_Pause
+	
+_MAN_UnPause:
+	CALL MAN_PlayMenu
+	JMP _MAN_PauseClick_end
+	
+_MAN_Pause
 	MOV R0 , 2 ; Set PlayPauseMenu (ID-2)
 	CALL MD_SetBack ; Call Function Set
-	; TODO: PAUSE Clocks
+	CALL IT_DisableGameInterrupts
+	
+	
+_MAN_PauseClick_end:
+	POP R1
 	POP R0
 	
 	RET
+
+
 
 ;Plays One Time Sound of the Line Clear
 MAN_LineCleared:
