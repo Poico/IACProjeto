@@ -159,7 +159,7 @@ TL_MoveTetra:
     MOV R2,_TL_MovingTetra
     MOV R3,4
 
- _TL_MoveTetra_loop:
+_TL_MoveTetra_loop:
     ADD R2,4;go to blocks
     MOV R4,[R2+0]
     MOV R5,[R2+2]
@@ -191,24 +191,24 @@ TL_TryBlock:
     JNN PassXMin
     MOV R2,0
     RET
-PassXMin:
+_TL_PassXMin:
     MOV R2,10
     CMP R0,R2
-    JN PassXMax
+    JN _TL_PassXMax
     MOV R2,0
     RET
-PassXMax:
+_TL_PassXMax:
     CMP R0,0
-    JNN PassYMin
+    JNN _TL_PassYMin
     MOV R2,0
     RET
-PassYMin:
+_TL_PassYMin:
     MOV R2,20
     CMP R0,R2
-    JN PassYMax
+    JN _TL_PassYMax
     MOV R2,0
     RET
-PassYMax:
+_TL_PassYMax:
 
     PUSH R0
     PUSH R1
@@ -255,7 +255,7 @@ TL_DrawMovingTetra:
     MOV R3,2;set up the draw call
     MOV R6,4
 
- _TL_DrawMovingTetra_loop:
+_TL_DrawMovingTetra_loop:
     ADD R5,4;go to blocks
     MOV R0,[R5+0]
     SHL R0,1
@@ -299,7 +299,7 @@ TL_FinalizeTetra:
     MOV R6,4
     MOV R7,10
 
- _TL_FinalizeTetra_loop:
+_TL_FinalizeTetra_loop:
     ADD R0,4
     MOV R4,[R0+0];X
     MOV R5,[R0+2];Y
