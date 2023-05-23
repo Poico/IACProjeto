@@ -31,6 +31,7 @@ _SB_DrawSB_writePercent:
 	DIV R0, R10
 	
 	CALL BC_ToBCD
+	MOV R0, R1
 	CALL BC_WriteToDisp
 	
 	MOV R0, R6			; restore

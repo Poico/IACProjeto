@@ -38,8 +38,8 @@ _BC_ToBCD_end:
 	
 ;Write R0 to hexadecimal display
 BC_WriteToDisp:
-	PUSH R0
-	MOV R0, _BC_HexOut	; Display pointer
-	MOV [R0], R1		; Write value
-	POP R0
+	PUSH R1
+	MOV R1, _BC_HexOut	; Display pointer
+	MOV [R1], R0		; Write value
+	POP R1
 	RET

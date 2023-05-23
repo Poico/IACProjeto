@@ -52,6 +52,8 @@ _KB_GetKey_end:
 	POP R1
 	RET
 
+
+
 ;returns non-zero in R1 if the key specified in R0 is pressed
 KB_IsKeyPressed:
 	MOV R1, R0
@@ -63,3 +65,57 @@ KB_IsKeyPressed:
 	
 _KB_IsKeyPressed_end:
 	RET
+
+
+; Polls keyboard and executes assigned functions
+KB_DoHandles:
+	PUSH R0	; Key press
+	PUSH R1	; Press_Handles base pointer
+	PUSH R2	; Hold_Handles base pointer
+	PUSH R3	; Auxiliar
+	
+	MOV R1, _KB_Press_Handles	; Load pointers
+	MOV R2, _KB_Hold_Handles
+	
+_KB_DoHandles_start:
+	CALL KB_GetKey				; Get key to R0
+	SHL R0, 1					; Multiply by 2 to account for word sized addresses
+	
+	CMP R0, 0FFFFH				; Check for empty key
+	JEQ _KB_DoHandles_end		; Skip if empty
+	
+_KB_DoHandles_hold:
+	MOV R3, [R2 + R0]			; Load hold pointer
+	CMP R3, 0					; Check if NULL
+	JEQ _KB_DoHandles_Press		; Skip if NULL
+	CALL R3						; Call assigned function
+	
+_KB_DoHandles_Press:
+	MOV R3, [_KB_LastKeyPressed]; Get last pressed key	
+	CMP R0, R3					; Compare last with current key
+	JEQ _KB_DoHandles_end		; Ignore if press didn't change
+	MOV R3, [R1 + R0]			; Load corresponding pointer
+	CMP R3, 0					; Check if NULL
+	JEQ _KB_DoHandles_end		; Skip if NULL
+	CALL R3						; Call asigned function
+	
+_KB_DoHandles_end:
+	MOV [_KB_LastKeyPressed], R0; Update last key pressed
+	
+	POP R3
+	POP R2
+	POP R1
+	POP R0
+	RET
+	
+
+_KB_Press_Handles:
+	WORD	0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0
+			
+_KB_Hold_Handles:
+	WORD	0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0
+
+_KB_LastKeyPressed:
+	WORD 0
