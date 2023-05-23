@@ -1,36 +1,36 @@
-init:
-    MOV SP,stack_start
-    CALL MD_InitMedia
-    CALL MD_SetBack
+;TetraLogic.asm
+;Holding itself together whit Hopes And Dreams~~~
 
-    MOV R0,1
-    CALL TL_MakeTetra
-    MOV R0,0
-    MOV R1,0
-    CALL TL_MoveTetra
-    CALL TL_RotateTetra
-    CALL TL_FinalizeTetra
-    MOV R0,2
-    MOV R1,0
-    CALL TL_TryBlock
-    CALL TL_DrawBoard
-    CALL TL_DrawMovingTetra
-
-end:
-    JMP end
-
-STACK 100H
-stack_start:
-
-_TL_TetraColors: WORD 0000H,0FF00H,0F0F0H,0F00FH
-
-_TL_Tetras: WORD 0000H,_TL_Square,_TL_Z_Horz,_TL_I_Vert
+;HEY POICO SET THESE COLOR TO BETTER MAATCH THE BACKGROUND
+_TL_TetraColors: WORD 0000H,0FFF0H    ,0FF00H    ,0F0F0H       ,0F0FFH    ,0F00FH    ,0FF80H       ,0FF0FH
+_TL_Tetras: WORD      0000H,_TL_Square,_TL_Z_Horz,_TL_invZ_Horz,_TL_I_Vert,_TL_L_ANG0,_TL_invL_ANG0,_TL_T_ANG0
+                         ;Master Block
                 ;NEXT SHAPE BL1X BL1Y BL2X BL2Y BL3X BL3Y BL4X BL4Y
 _TL_Square: WORD _TL_Square,0000,0000,0001,0000,0001,0001,0000,0001
+
 _TL_Z_Horz: WORD _TL_Z_Vert,0001,0001,0000,0000,0001,0000,0002,0001
 _TL_Z_Vert: WORD _TL_Z_Horz,0000,0001,0001,0000,0001,0001,0000,0002
+
+_TL_invZ_Horz: WORD _TL_invZ_Vert,0001,0001,0000,0001,0001,0000,0002,0000
+_TL_invZ_Vert: WORD _TL_invZ_Horz,0000,0001,0000,0000,0001,0001,0001,0002
+
 _TL_I_Horz: WORD _TL_I_Vert,0001,0000,0000,0000,0002,0000,0003,0000
 _TL_I_Vert: WORD _TL_I_Horz,0000,0001,0000,0000,0000,0002,0000,0003
+
+_TL_L_ANG0 : WORD _TL_L_ANG1,0000,0001,0000,0000,0000,0002,0001,0002
+_TL_L_ANG1 : WORD _TL_L_ANG2,0001,0001,0000,0001,0002,0001,0002,0000
+_TL_L_ANG2 : WORD _TL_L_ANG3,0001,0001,0000,0000,0001,0000,0001,0002
+_TL_L_ANG3 : WORD _TL_L_ANG0,0001,0000,0000,0000,0000,0001,0002,0000
+
+_TL_invL_ANG0 : WORD _TL_invL_ANG1,0001,0001,0001,0000,0001,0002,0000,0002
+_TL_invL_ANG1 : WORD _TL_invL_ANG2,0001,0001,0000,0001,0002,0001,0002,0000
+_TL_invL_ANG2 : WORD _TL_invL_ANG3,0000,0001,0001,0000,0000,0000,0000,0002
+_TL_invL_ANG3 : WORD _TL_invL_ANG0,0001,0001,0000,0001,0000,0000,0002,0001
+
+_TL_T_ANG0 : WORD _TL_T_ANG1,0001,0001,0001,0000,0002,0001,0001,0002
+_TL_T_ANG1 : WORD _TL_T_ANG2,0001,0001,0002,0001,0001,0002,0000,0001
+_TL_T_ANG2 : WORD _TL_T_ANG3,0001,0001,0001,0002,0000,0001,0001,0000
+_TL_T_ANG3 : WORD _TL_T_ANG0,0001,0001,0000,0001,0001,0000,0002,0001
 
 _TL_MovingTetra:
     WORD 
@@ -43,6 +43,30 @@ _TL_MovingTetra:
 
 _TL_Board:
     TABLE 200
+
+;Input nothing
+;OutPut nothing
+;Clears The Board
+TL_ResetBoard:
+    PUSH R0
+    PUSH R1
+    PUSH R2
+
+    MOV R0,_TL_Board
+    MOV R1,400
+    MOV R2,0
+
+TL_ResetBoard_loop:
+    SUB R1,2
+    MOV [R0+R1],R2
+    CMP R1,0
+    JNZ TL_ResetBoard_loop
+
+    POP R2
+    POP R1
+    POP R0
+
+    RET
 
 ;Input R0(ID)
 ;OutPut nothing
@@ -89,7 +113,7 @@ TL_MakeTetra:
 
 ;Inputs nothing
 ;Output nothing
-;"Rotates" the tetra to the next shape
+;"Rotates" the tetra to the next shape if it can
 TL_RotateTetra:
 
     PUSH R0
@@ -104,7 +128,6 @@ TL_RotateTetra:
     ADD R0,2
     MOV R1,[R0];Get Value of pointer
     MOV R2,[R1];Get Value of pointer
-    MOV [R0],R2;Set Next Tetra pointer
 
     ADD R0,2;Copy Data
     ADD R1,2
@@ -114,7 +137,51 @@ TL_RotateTetra:
     MOV R3,[R1+0]
     MOV R4,[R1+2]
     SUB R5,R3
-    SUB R6,R3
+    SUB R6,R4
+
+    MOV R4,4
+
+ _TL_RotateTetra_testloop:
+
+    PUSH R4
+
+    MOV R3,[R1];get new X
+    ADD R3,R5
+    ADD R1,2
+
+    MOV R4,[R1];get new Y
+    ADD R4,R6
+    ADD R1,2
+
+    PUSH R0
+    PUSH R1
+    PUSH R2
+
+    MOV R0,R3
+    MOV R1,R4
+    CALL TL_TryBlock
+
+    POP R2
+    POP R1
+    POP R0
+
+    POP R4
+
+    JNZ TL_RotateTetra_Cancel
+
+    SUB R4,1
+    CMP R4,0
+    JNZ _TL_RotateTetra_testloop
+
+    MOV R0,_TL_MovingTetra
+    ADD R0,2
+    MOV R1,[R0];Get Value of pointer
+    MOV R2,[R1];Get Value of pointer
+    MOV [R0],R2;Set Next Tetra pointer
+
+    ADD R0,2;Copy Data
+    ADD R1,2
+
 
     MOV R4,4
 
@@ -136,6 +203,7 @@ TL_RotateTetra:
     CMP R4,0
     JNZ _TL_RotateTetra_loop
 
+TL_RotateTetra_Cancel:
     POP R6
     POP R5
     POP R4
@@ -146,25 +214,83 @@ TL_RotateTetra:
 
     RET
 
-;Input R0(X) R1(Y)
+;Input nothing
 ;OutPut nothing
-;Moves the tetra by X and Y
+;Slams Down The Tetra
+TL_SlamTetra:
+
+    PUSH R0
+    PUSH R1
+    PUSH R2
+
+    MOV R0,0
+    MOV R1,1
+TL_SlamTetra_loop:
+    CALL TL_MoveTetra
+    CMP R2,1
+    JNN TL_SlamTetra_loop
+    
+    POP R2
+    POP R1
+    POP R0
+
+    RET
+
+;Input R0(X) R1(Y)
+;OutPut R2(Succsess or not)
+;Moves the tetra by X and Y if it can
 TL_MoveTetra:
 
-    PUSH R2
     PUSH R3
     PUSH R4
     PUSH R5
 
+;TEST LOOP
+    MOV R2,_TL_MovingTetra
+    MOV R3,4
+_TL_MoveTetra_testloop:
+    ADD R2,4;go to blocks
+
+    PUSH R0 ;[TODO : maybe break this routine down]
+    PUSH R1
+
+    PUSH R3
+    PUSH R4
+
+    MOV R3,[R2+0]
+    MOV R4,[R2+2]
+    ADD R0,R3;OFFSETS
+    ADD R1,R4
+
+    POP R4
+    POP R3
+
+    PUSH R2
+
+    CALL TL_TryBlock
+
+    POP R2
+    POP R1
+    POP R0
+
+    JNZ _TL_MoveTetra_Cancel
+
+    SUB R3,1
+    CMP R3,0
+    JNZ _TL_MoveTetra_testloop
+
     MOV R2,_TL_MovingTetra
     MOV R3,4
 
+;ACTUAL MOVE LOOP
+    MOV R2,_TL_MovingTetra
+    MOV R3,4
 _TL_MoveTetra_loop:
     ADD R2,4;go to blocks
     MOV R4,[R2+0]
     MOV R5,[R2+2]
     ADD R4,R0
-    ADD R5,R0
+    ADD R5,R1
     MOV [R2+0],R4
     MOV [R2+2],R5
     SUB R3,1
@@ -174,11 +300,17 @@ _TL_MoveTetra_loop:
     POP R5
     POP R4
     POP R3
-    POP R2
+
+    MOV R2,1
 
     RET
 
-TL_TryMoveTetra:
+_TL_MoveTetra_Cancel:
+    POP R5
+    POP R4
+    POP R3
+
+    MOV R2,0
 
     RET
 
@@ -188,7 +320,7 @@ TL_TryMoveTetra:
 TL_TryBlock:
     
     CMP R0,0
-    JNN PassXMin
+    JNN _TL_PassXMin
     MOV R2,0
     RET
 _TL_PassXMin:
@@ -217,6 +349,8 @@ _TL_PassYMax:
     MOV R2,_TL_Board
     MOV R3,10
     MUL R1,R3
+    SHL R0,1
+    SHL R1,1
     ADD R2,R0
     ADD R2,R1
     MOV R2,[R2]
@@ -322,6 +456,128 @@ _TL_FinalizeTetra_loop:
 
     RET
 
+;Input Nothing
+;Output R0(lines cleard)
+;Finds Clears Moves and returns the cleard lines
+TL_BoardCheck:
+
+    PUSH R0
+    PUSH R1
+    PUSH R2
+    PUSH R3
+
+    MOV R0,19
+    MOV R2,20
+    MOV R3,0
+
+TL_BoardCheck_loop:
+    CALL TL_LineCheck
+
+    CMP R1,0
+
+    JZ TL_BoardCheck_skip
+    CALL TL_LineFall
+    ADD R3,1
+    ADD R0,1
+TL_BoardCheck_skip:
+    SUB R0,1
+    SUB R2,1
+    CMP R2,0
+    JNZ TL_BoardCheck_loop
+
+    POP R3
+    POP R2
+    POP R1
+    POP R0
+
+    RET
+
+;Input R0(index)
+;Output R1(did something)
+;Finds Clears Moves and returns the cleard line
+TL_LineCheck:
+
+    PUSH R0
+    PUSH R2
+
+    MOV R1,10
+    MUL R0,R1
+    SHL R0,1
+    MOV R2,_TL_Board
+    ADD R0,R2
+
+    MOV R2,10
+
+_TL_LineCheck_loop:
+    MOV R1,[R0]
+    ADD R0,2
+    CMP R1,0
+    JZ _TL_LineCheck_fail
+
+    SUB R2,1
+    CMP R2,0
+    JNZ _TL_LineCheck_loop
+
+    POP R2
+    POP R0
+
+    MOV R1,1
+
+    RET
+
+_TL_LineCheck_fail:
+
+    POP R2
+    POP R0
+
+    MOV R1,0
+
+    RET
+
+;Input R0(index)
+;Output nothing
+;Makes Lines Above "fall down"
+TL_LineFall:
+
+    PUSH R0
+    PUSH R1
+    PUSH R2
+    PUSH R3
+
+    ADD R0,1
+    MOV R1,10
+    MUL R0,R1
+    SHL R0,1
+    MOV R2,_TL_Board
+    ADD R0,R2
+    MOV R1,22
+    ADD R2,R1
+    MOV R1,-20
+
+TL_LineFall_loop:
+    SUB R0,2
+    MOV R3,[R0+R1]
+    MOV [R0],R3
+    CMP R0,R2
+    JNN TL_LineFall_loop
+
+    MOV R2,_TL_Board
+    ADD R2,2
+
+TL_LineFall_loop_finalize:
+    SUB R0,2
+    MOV R3,0
+    MOV [R0],R3
+    CMP R0,R2
+    JNN TL_LineFall_loop_finalize
+
+    POP R3
+    POP R2
+    POP R1
+    POP R0
+
+    RET
+
 TL_DrawBoard:
 
     PUSH R0
@@ -337,19 +593,19 @@ TL_DrawBoard:
     MOV R0,_TL_Board
     MOV R1,_TL_TetraColors
     MOV R3,20
-    MOV R4,16
+    MOV R4,14
     MOV R6,1
     MOV R7,0
     MOV R8,0
 
-height:
+TL_DrawBoard_height:
     MOV R2,10
 
 
     MOV [_MD_Commands+0CH],R6;Set X
     MOV [_MD_Commands+0AH],R4;Set Y
     MOV R8,R0
-width:
+TL_DrawBoard_width:
     MOV R5,[R0]
     SHL R5,1
     MOV R5,[R1+R5]
@@ -361,22 +617,22 @@ width:
 
     SUB R2,1
     CMP R2,0
-    JNZ width
+    JNZ TL_DrawBoard_width
 
 ;end height
 
     CMP R7,0
-    JZ skip
+    JZ TL_DrawBoard_skip
     SUB R3,1
     MOV R7,-1
-    JMP noskip
-skip:
+    JMP TL_DrawBoard_noskip
+TL_DrawBoard_skip:
     MOV R0,R8
-noskip:
+TL_DrawBoard_noskip:
     ADD R4,1
     ADD R7,1
     CMP R3,0
-    JNZ height
+    JNZ TL_DrawBoard_height
 
     POP R8
     POP R7
