@@ -1,4 +1,4 @@
-;RNG.asm
+; RNG.asm
 
 ;this is where the RNG value is stored
 RNG_ADDRESS:

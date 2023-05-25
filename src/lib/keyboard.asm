@@ -1,9 +1,42 @@
 ; keyboard.asm - Keyboard interfacing functions
 
+; includes
+#include:Manager.asm
+
 _KB_KEYO	EQU 0C000H ; write to test
 _KB_KEYI	EQU 0E000H ; read to check
 
-;returns first pressed key in R0
+
+_KB_Press_Handles:
+	;		0		1		2		3
+	WORD	0,		0,		0,		0,
+	;		4		5		6		7
+			0,		0,		0,		0,
+	;		8		9		A		B
+			0,		0,		0,		0,
+	;		C		D		E		F
+			0, 		0,		0, 		0
+			
+_KB_Hold_Handles:
+	;		0		1		2		3
+	WORD	0,		0,		0,		0,
+	;		4		5		6		7
+			0,		0,		0,		0,
+	;		8		9		A		B
+			0,		0,		0,		0,
+	;		C		D				E		F
+			0, 		MAN_PauseClick,	0, 		MAN_PlayMenu
+
+_KB_LastKeyPressed:
+	WORD 0
+	
+_KB_NextKeyPressHandle:
+	WORD 0
+_KB_NextKeyHoldHandle:
+	WORD 0
+
+
+; Returns first pressed key in R0
 KB_GetKey:
 	PUSH R1 	; keyboard output pointer (write test)
 	PUSH R2 	; keyboard input pointer (read key)
@@ -54,7 +87,7 @@ _KB_GetKey_end:
 
 
 
-;returns non-zero in R1 if the key specified in R0 is pressed
+; Returns non-zero in R1 if the key specified in R0 is pressed
 KB_IsKeyPressed:
 	MOV R1, R0
 	CALL KB_GetKey
@@ -139,20 +172,3 @@ _KB_DoHandles_end:
 
 	POP R0
 	RET
-	
-
-_KB_Press_Handles:
-	WORD	0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0
-			
-_KB_Hold_Handles:
-	WORD	0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0
-
-_KB_LastKeyPressed:
-	WORD 0
-	
-_KB_NextKeyPressHandle:
-	WORD 0
-_KB_NextKeyHoldHandle:
-	WORD 0

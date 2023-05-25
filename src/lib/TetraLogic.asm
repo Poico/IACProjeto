@@ -1,9 +1,8 @@
+;TetraLogic.asm
+;Holding itself together with Hopes And Dreams~~~
+
 #include:MediaDrive.asm
 #include:RNG.asm
-
-;TetraLogic.asm
-;Holding itself together whit Hopes And Dreams~~~
-
 
 _TL_TetraColors: WORD 0000H,0FFF0H	,0FF00H	,0F5F8H	   ,0F0FFH	,0F00FH	,0FF80H	   ,0F70FH
 _TL_Tetras: WORD	  0000H,_TL_Square,_TL_Z_Horz,_TL_invZ_Horz,_TL_I_Vert,_TL_L_ANG0,_TL_invL_ANG0,_TL_T_ANG0
@@ -76,7 +75,7 @@ _TL_ResetBoard_loop:
 
 ;Input R0(ID)
 ;OutPut nothing
-;Makes a Tetra in memmory whit the id
+;Makes a Tetra in memmory with the id
 TL_MakeTetra:
 
 	PUSH R0

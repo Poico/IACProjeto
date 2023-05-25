@@ -1,4 +1,4 @@
-;MediaDrive.asm
+; MediaDrive.asm
 
 MD_TestPalette:
 ;	0	  1	  2	  3	  4
