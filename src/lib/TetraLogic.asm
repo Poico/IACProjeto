@@ -1,8 +1,8 @@
 ;TetraLogic.asm
 ;Holding itself together whit Hopes And Dreams~~~
 
-;HEY POICO SET THESE COLOR TO BETTER MAATCH THE BACKGROUND
-_TL_TetraColors: WORD 0000H,0FFF0H	,0FF00H	,0F0F0H	   ,0F0FFH	,0F00FH	,0FF80H	   ,0FF0FH
+
+_TL_TetraColors: WORD 0000H,FFF0H	,FF00H	,F5F8H	   ,F0FFH	,F00FH	,FF80H	   ,F70FH
 _TL_Tetras: WORD	  0000H,_TL_Square,_TL_Z_Horz,_TL_invZ_Horz,_TL_I_Vert,_TL_L_ANG0,_TL_invL_ANG0,_TL_T_ANG0
 				;Master Block
 				;NEXT SHAPE BL1X BL1Y BL2X BL2Y BL3X BL3Y BL4X BL4Y
