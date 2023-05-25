@@ -36,8 +36,7 @@ MAN_PauseClick:
 	PUSH R0
 	PUSH R1
 	
-	MOV R1 , _MAN_TogglePause
-	MOV R1, [R1]
+	MOV R1, [_MAN_TogglePause]
 	CMP R1 , 0
 	JNZ _MAN_Pause
 	
@@ -45,7 +44,7 @@ _MAN_UnPause:
 	CALL MAN_PlayMenu
 	JMP _MAN_PauseClick_end
 	
-_MAN_Pause
+_MAN_Pause:
 	MOV R0 , 2 ; Set PlayPauseMenu (ID-2)
 	CALL MD_SetBack ; Call Function Set
 	CALL IT_DisableGameInterrupts

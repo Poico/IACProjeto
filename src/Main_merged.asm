@@ -6,10 +6,10 @@ entry:
 	MOV SP, stack_top
 	
 	CALL IT_SetupInterrupts
+	CALL IT_DisableGameInterrupts
 	
 	CALL MD_InitMedia
-	MOV R0, 0					; Load game background
-	CALL MD_SetBack
+	CALL MAN_MainMenu
 	
 	CALL TL_ResetBoard
 	
@@ -547,8 +547,7 @@ MAN_PauseClick:
 	PUSH R0
 	PUSH R1
 	
-	MOV R1 , _MAN_TogglePause
-	MOV R1, [R1]
+	MOV R1, [_MAN_TogglePause]
 	CMP R1 , 0
 	JNZ _MAN_Pause
 	
@@ -556,7 +555,7 @@ _MAN_UnPause:
 	CALL MAN_PlayMenu
 	JMP _MAN_PauseClick_end
 	
-_MAN_Pause
+_MAN_Pause:
 	MOV R0 , 2 ; Set PlayPauseMenu (ID-2)
 	CALL MD_SetBack ; Call Function Set
 	CALL IT_DisableGameInterrupts
@@ -605,9 +604,9 @@ _KB_Press_Handles:
 	;		4		5		6		7
 			0,		0,		0,		0,
 	;		8		9		A		B
-			0,		0,		0,		0,
-	;		C		D		E		F
-			0, 		0,		0, 		0
+			0,		0,		0,		_TEST_KeyPress,
+	;		C		D					E		F
+			0, 		MAN_PauseClick,		0, 		MAN_PlayMenu
 			
 _KB_Hold_Handles:
 	;		0		1		2		3
@@ -616,8 +615,8 @@ _KB_Hold_Handles:
 			0,		0,		0,		0,
 	;		8		9		A		B
 			0,		0,		0,		0,
-	;		C		D				E		F
-			0, 		MAN_PauseClick,	0, 		MAN_PlayMenu
+	;		C		D		E		F
+			0, 		0,		0, 		0
 
 _KB_LastKeyPressed:
 	WORD 0
@@ -627,6 +626,12 @@ _KB_NextKeyPressHandle:
 _KB_NextKeyHoldHandle:
 	WORD 0
 
+_TEST_KeyPress:
+	PUSH R0
+	MOV R0, 69H
+	CALL BC_WriteToDisp
+	POP R0
+	RET
 
 ; Returns first pressed key in R0
 KB_GetKey:
@@ -765,10 +770,10 @@ _KB_DoHandles_end:
 	POP R0
 	RET
 
-_IT_CLR_TV_TD 	EQU 0FF6FH	; Bitmask to clear TV & TD
-_IT_SET_INTS 	EQU 00F80H	; Bitmask to set IE and IE# (0-3)
-_IT_CLR_GINTS 	EQU 0F8FFH	; Bitmask to clear game interrupts IE# (0-2)
-_IT_SET_GINTS	EQU 00700H	; Bitmask to set game interrupts IE# (0-2)
+_IT_CLR_TV_TD 	EQU 0FF3FH	; Bitmask to clear TV & TD
+_IT_SET_INTS 	EQU 01F00H	; Bitmask to set IE and IE# (0-3)
+_IT_CLR_GINTS 	EQU 0F1FFH	; Bitmask to clear game interrupts IE# (0-2)
+_IT_SET_GINTS	EQU 00E00H	; Bitmask to set game interrupts IE# (0-2)
 
 _IT_interrupt_vectors:
 	WORD _IT_INT0, _IT_INT1, _IT_INT2, _IT_INT3,
@@ -851,7 +856,6 @@ _IT_I_DESALINHADO:
 
 ;this is where the RNG value is stored
 RNG_ADDRESS:
-PLACE RNG_ADDRESS
 WORD 01B1EH ;Starting value can be anything
 
 ;Input Nothing

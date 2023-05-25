@@ -14,8 +14,8 @@ _KB_Press_Handles:
 			0,		0,		0,		0,
 	;		8		9		A		B
 			0,		0,		0,		0,
-	;		C		D		E		F
-			0, 		0,		0, 		0
+	;		C		D					E		F
+			0, 		MAN_PauseClick,		0, 		MAN_PlayMenu
 			
 _KB_Hold_Handles:
 	;		0		1		2		3
@@ -24,8 +24,8 @@ _KB_Hold_Handles:
 			0,		0,		0,		0,
 	;		8		9		A		B
 			0,		0,		0,		0,
-	;		C		D				E		F
-			0, 		MAN_PauseClick,	0, 		MAN_PlayMenu
+	;		C		D		E		F
+			0, 		0,		0, 		0
 
 _KB_LastKeyPressed:
 	WORD 0
@@ -34,7 +34,6 @@ _KB_NextKeyPressHandle:
 	WORD 0
 _KB_NextKeyHoldHandle:
 	WORD 0
-
 
 ; Returns first pressed key in R0
 KB_GetKey:

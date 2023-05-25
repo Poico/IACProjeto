@@ -6,12 +6,12 @@ entry:
 	MOV SP, stack_top
 	
 	CALL IT_SetupInterrupts
+	CALL IT_DisableGameInterrupts
 	
 	CALL MD_InitMedia
-	MOV R0, 0					; Load game background
-	CALL MD_SetBack
+	CALL MAN_MainMenu
 	
-	CALL TL_ResetBoard
+	CALL TL_InitTetraLogic
 	
 	
 	
@@ -25,9 +25,10 @@ end:
 
 ; includes
 #include:lib/Interrupts.asm
-#include:lib/keyboard.asm
 #include:lib/MediaDrive.asm
+#include:lib/Manager.asm
 #include:lib/TetraLogic.asm
+#include:lib/keyboard.asm
 
 ; stack
 	PLACE 3800H
