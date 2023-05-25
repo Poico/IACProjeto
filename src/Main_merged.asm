@@ -11,7 +11,7 @@ entry:
 	CALL MD_InitMedia
 	CALL MAN_MainMenu
 	
-	CALL TL_ResetBoard
+	CALL TL_InitTetraLogic
 	
 	
 	
@@ -553,11 +553,15 @@ MAN_PauseClick:
 	
 _MAN_UnPause:
 	CALL MAN_PlayMenu
+	MOV R0, 0
+	MOV [_MAN_TogglePause], R0
 	JMP _MAN_PauseClick_end
 	
 _MAN_Pause:
 	MOV R0 , 2 ; Set PlayPauseMenu (ID-2)
 	CALL MD_SetBack ; Call Function Set
+	MOV R0, 1
+	MOV [_MAN_TogglePause], R0
 	CALL IT_DisableGameInterrupts
 	
 	
@@ -604,7 +608,7 @@ _KB_Press_Handles:
 	;		4		5		6		7
 			0,		0,		0,		0,
 	;		8		9		A		B
-			0,		0,		0,		_TEST_KeyPress,
+			0,		0,		0,		0,
 	;		C		D					E		F
 			0, 		MAN_PauseClick,		0, 		MAN_PlayMenu
 			
@@ -625,13 +629,6 @@ _KB_NextKeyPressHandle:
 	WORD 0
 _KB_NextKeyHoldHandle:
 	WORD 0
-
-_TEST_KeyPress:
-	PUSH R0
-	MOV R0, 69H
-	CALL BC_WriteToDisp
-	POP R0
-	RET
 
 ; Returns first pressed key in R0
 KB_GetKey:
