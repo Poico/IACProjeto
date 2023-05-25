@@ -604,15 +604,15 @@ _TL_DrawBoard_height:
 	MOV R2,10
 
 
-	MOV [_MD_Commands+0CH],R6;Set X
-	MOV [_MD_Commands+0AH],R4;Set Y
+	MOV [MD_Commands+0CH],R6;Set X
+	MOV [MD_Commands+0AH],R4;Set Y
 	MOV R8,R0
 _TL_DrawBoard_width:
 	MOV R5,[R0]
 	SHL R5,1
 	MOV R5,[R1+R5]
-	MOV [_MD_Commands+12H],R5;Draw
-	MOV [_MD_Commands+12H],R5;Draw
+	MOV [MD_Commands+12H],R5;Draw
+	MOV [MD_Commands+12H],R5;Draw
 	ADD R0,2
 
 ;end width
