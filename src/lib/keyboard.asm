@@ -67,44 +67,76 @@ _KB_IsKeyPressed_end:
 	RET
 
 
-; Polls keyboard and executes assigned functions
-KB_DoHandles:
-	PUSH R0	; Key press
-	PUSH R1	; Press_Handles base pointer
-	PUSH R2	; Hold_Handles base pointer
-	PUSH R3	; Auxiliar
+; Polls keyboard and sets up the key
+KB_PollKey:
+	PUSH R0
+	PUSH R1						; Press_Handles base pointer
+	PUSH R2						; Hold_Handles base pointer
+	PUSH R3						; Auxiliar
 	
 	MOV R1, _KB_Press_Handles	; Load pointers
 	MOV R2, _KB_Hold_Handles
 	
-_KB_DoHandles_start:
-	CALL KB_GetKey				; Get key to R0
-	SHL R0, 1					; Multiply by 2 to account for word sized addresses
+_KB_PollKey_start:
+	CALL KB_GetKey
 	
-	CMP R0, 0FFFFH				; Check for empty key
-	JEQ _KB_DoHandles_end		; Skip if empty
+	CMP R0, 0FFFFH					; Check for empty key
+	JEQ _KB_PollKey_end				; Skip if empty
 	
-_KB_DoHandles_hold:
-	MOV R3, [R2 + R0]			; Load hold pointer
-	CMP R3, 0					; Check if NULL
-	JEQ _KB_DoHandles_Press		; Skip if NULL
-	CALL R3						; Call assigned function
+	SHL R0, 1						; Multiply by 2 (word size)
 	
-_KB_DoHandles_Press:
-	MOV R3, [_KB_LastKeyPressed]; Get last pressed key	
-	CMP R0, R3					; Compare last with current key
-	JEQ _KB_DoHandles_end		; Ignore if press didn't change
-	MOV R3, [R1 + R0]			; Load corresponding pointer
-	CMP R3, 0					; Check if NULL
-	JEQ _KB_DoHandles_end		; Skip if NULL
-	CALL R3						; Call asigned function
+_KB_PollKey_hold:
+	MOV R3, [_KB_NextKeyHoldHandle] ; Check for handle already set
+	TEST R3, R3						; (Update Z flag)
+	JNE _KB_PollKey_press			; Ignore if handle is set
 	
-_KB_DoHandles_end:
-	MOV [_KB_LastKeyPressed], R0; Update last key pressed
+	MOV R3, [R2 + R0]				; Get handle
+	MOV [_KB_NextKeyHoldHandle], R3	; Set next handle
+
+_KB_PollKey_press:
+	MOV R3, [_KB_NextKeyPressHandle]; Check for handle already set
+	TEST R3, R3						; (Update Z flag)
+	JNE _KB_PollKey_end				; Ignore if handle is set
 	
+	MOV R3, [_KB_LastKeyPressed]	; Check if key pressed changed
+	CMP R0, R3
+	JEQ _KB_PollKey_end				; Skip if press didn't change
+	
+	MOV R3, [R1 + R0]				; Get handle
+	MOV [_KB_NextKeyPressHandle], R3; Set next handle
+	
+_KB_PollKey_end:
+	MOV [_KB_LastKeyPressed], R0	; Update last key pressed
+
 	POP R3
 	POP R2
 	POP R1
+	POP R0
+	RET
+
+
+; Polls keyboard and executes assigned functions
+KB_DoHandles:
+	PUSH R0	; Handle pointer
+	
+	
+_KB_DoHandles_hold:
+	MOV R0, [_KB_NextKeyHoldHandle]	; Load handle pointer
+	TEST R0, R0						; (Update Z flag)
+	JEQ _KB_DoHandles_press			; Skip if NULL
+	CALL R0							; Call handle
+
+_KB_DoHandles_press:
+	MOV R0, [_KB_NextKeyPressHandle]; Load handle pointer
+	TEST R0, R0						; (Update Z flag)
+	JEQ _KB_DoHandles_end			; Skip if NULL
+	CALL R0							; Call handle
+	
+_KB_DoHandles_end:
+	XOR R0, R0						; Reset handle pointers
+	MOV [_KB_NextKeyHoldHandle], R0
+	MOV [_KB_NextKeyPressHandle], R0
+
 	POP R0
 	RET
 	
@@ -118,4 +150,9 @@ _KB_Hold_Handles:
 			0, 0, 0, 0, 0, 0, 0, 0
 
 _KB_LastKeyPressed:
+	WORD 0
+	
+_KB_NextKeyPressHandle:
+	WORD 0
+_KB_NextKeyHoldHandle:
 	WORD 0

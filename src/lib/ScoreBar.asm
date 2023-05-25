@@ -11,9 +11,8 @@ MAX			EQU 100
 #include:MediaDrive.asm
 #include:BCD.asm
 
-; score in R0
+; Draws score bar and writes to hex display
 SB_DrawSB:
-	PUSH R0				; make a backup
 	PUSH R1				; <draw call args>
 	PUSH R2				; <draw call args>
 	PUSH R3				; <draw call args>
@@ -23,20 +22,20 @@ SB_DrawSB:
 	PUSH R7				; maxY
 	PUSH R10			; aux
 	
+	MOV R0, [SB_Score]	; Get score
+	
 _SB_DrawSB_writePercent:
-	MOV R6, R0			; backup
 	MOV R10, 100
 	MUL R0, R10			; R0 = (R0 * 100) / MAX (to get percent)
 	MOV R10, MAX
 	DIV R0, R10
 	
-	CALL BC_ToBCD
-	MOV R0, R1
-	CALL BC_WriteToDisp
-	
-	MOV R0, R6			; restore
+	CALL BC_ToBCD		; Get percent BCD
+	MOV R0, R1			; (mov to R0 for call)
+	CALL BC_WriteToDisp	; Print BCD to hex
 	
 _SB_DrawSB_calcFill:
+	MOV R0, [SB_Score]	; Get score again
 	MOV R5, R0			; fillPixels = score * HEIGHT * WIDTH / MAX
 	MOV R10, BHEIGHT
 	MUL R5, R10
@@ -62,18 +61,6 @@ _SB_DrawSB_clearBar:
 	;Input R0(X) R1(Y) R2(width) R3(height) R4(Color)
 	CALL MD_DrawRect
 	
-_SB_DrawSB_updateColor:
-	MOV R4, [_SB_Color]
-	MOV R5, R4
-	MOV R10, 1
-	SHR R5, 11
-	AND R5, R10
-	SHL R4, 1
-	MOV R10, 0F000H
-	OR R4, R10
-	OR R4, R5
-	MOV [_SB_Color], R4
-	
 _SB_DrawSB_draw:	
 	MOV R0, CORNER_X		; Set cornerX (const)
 	MOV R1, CORNER_Y		; cornerY = CORNER_Y + BHEIGHT - maxY
@@ -85,6 +72,7 @@ _SB_DrawSB_draw:
 	CMP R3, 0
 	JEQ _SB_DrawSB_drawPartial	; if (height == 0) only draw partial
 	;Input R0(X) R1(Y) R2(width) R3(height) R4(Color)
+	MOV R4, [_SB_Color]	; Get color
 	CALL MD_DrawRect
 	
 _SB_DrawSB_drawPartial:
@@ -110,9 +98,31 @@ _SB_DrawSB_End:
 	POP R3
 	POP R2
 	POP R1
+	RET
+	
+; Steps the color animation
+SB_UpdateColor:
+	PUSH R0	; Color store
+	PUSH R1	; Auxiliar
+	
+	MOV R0, [_SB_Color]	; Get current color
+	MOV R1, 00FFFH		; 12 low bits bitmask
+	AND R0, R1			; Get low 12 bits (color)
+	SHL R0, 1			; Shift (rotate) color
+	BIT R0, 12			; Get overflow bit
+	JEQ _SB_UpdateColor_NoV
+	ADD R0, 1
+_SB_UpdateColor_NoV:
+	MOV R1, 0F000H		; Alpha mask (max)
+	OR R0, R1
+	MOV [_SB_Color], R0
+	
+	POP R1
 	POP R0
 	RET
 	
-	
 _SB_Color:
 	WORD 0FF00H
+	
+SB_Score:
+	WORD 50

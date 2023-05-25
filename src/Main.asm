@@ -3,6 +3,17 @@
 	PLACE 0
 entry:
 	; stack 
+	MOV SP, stack_top
+	
+	CALL IT_SetupInterrupts
+	CALL MD_InitMedia
+	MOV R0, 0
+	CALL MD_SetBack
+	
+poll_loop:
+	CALL KB_PollKey
+	JMP poll_loop
+	
 end:
 	JMP end
 	
@@ -11,8 +22,6 @@ end:
 #include:lib/Interrupts.asm
 #include:lib/keyboard.asm
 #include:lib/MediaDrive.asm
-#include:lib/RNG.asm
-#include:lib/ScoreBar.asm
 
 ; stack
 	PLACE 3800H
