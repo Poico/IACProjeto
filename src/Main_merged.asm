@@ -42,7 +42,7 @@ CORNER_X	EQU 25
 CORNER_Y	EQU 18
 MAX			EQU 100
 
-;MediaDrive.asm
+; MediaDrive.asm
 
 MD_TestPalette:
 ;	0	  1	  2	  3	  4
@@ -510,10 +510,125 @@ SB_Score:
 	WORD 50
 ; keyboard.asm - Keyboard interfacing functions
 
+; includes
+; Manager.asm
+
+
+_MAN_TogglePause:
+	WORD 0
+
+;Sets Main Menu Background
+MAN_MainMenu:
+
+	PUSH R0
+	
+	MOV R0 , 0 ; Set MainMenuBackground (ID-0)
+	CALL MD_SetBack ; Call Function Set
+	
+	POP R0
+	
+	RET
+	
+;Sets Play Menu Background
+MAN_PlayMenu:
+
+	PUSH R0
+	
+	MOV R0 , 1 ; Set PlayMenuBackground (ID-1)
+	CALL MD_SetBack ; Call Function Set
+	
+	POP R0
+	
+	RET
+	
+;Sets Pause Menu Background
+MAN_PauseClick:
+
+	PUSH R0
+	PUSH R1
+	
+	MOV R1 , _MAN_TogglePause
+	MOV R1, [R1]
+	CMP R1 , 0
+	JNZ _MAN_Pause
+	
+_MAN_UnPause:
+	CALL MAN_PlayMenu
+	JMP _MAN_PauseClick_end
+	
+_MAN_Pause
+	MOV R0 , 2 ; Set PlayPauseMenu (ID-2)
+	CALL MD_SetBack ; Call Function Set
+	CALL IT_DisableGameInterrupts
+	
+	
+_MAN_PauseClick_end:
+	POP R1
+	POP R0
+	
+	RET
+
+
+
+;Plays One Time Sound of the Line Clear
+MAN_LineCleared:
+
+	PUSH R0 ; ID for the Sound
+	
+	MOV R0 , 1 ; Set LineClearedSound (ID-1)
+	CALL MD_Play
+	
+	POP R0
+	
+	RET
+
+;Plays Background Music on Loop 
+MAN_BackgroundMusic:
+
+	PUSH R0 ; ID for the Music
+	
+	MOV R0, 0 ; Set BackgroundMusic (ID-0)
+	CALL MD_Loop
+	
+	POP R0
+	
+	RET
+
+
 _KB_KEYO	EQU 0C000H ; write to test
 _KB_KEYI	EQU 0E000H ; read to check
 
-;returns first pressed key in R0
+
+_KB_Press_Handles:
+	;		0		1		2		3
+	WORD	0,		0,		0,		0,
+	;		4		5		6		7
+			0,		0,		0,		0,
+	;		8		9		A		B
+			0,		0,		0,		0,
+	;		C		D		E		F
+			0, 		0,		0, 		0
+			
+_KB_Hold_Handles:
+	;		0		1		2		3
+	WORD	0,		0,		0,		0,
+	;		4		5		6		7
+			0,		0,		0,		0,
+	;		8		9		A		B
+			0,		0,		0,		0,
+	;		C		D				E		F
+			0, 		MAN_PauseClick,	0, 		MAN_PlayMenu
+
+_KB_LastKeyPressed:
+	WORD 0
+	
+_KB_NextKeyPressHandle:
+	WORD 0
+_KB_NextKeyHoldHandle:
+	WORD 0
+
+
+; Returns first pressed key in R0
 KB_GetKey:
 	PUSH R1 	; keyboard output pointer (write test)
 	PUSH R2 	; keyboard input pointer (read key)
@@ -564,7 +679,7 @@ _KB_GetKey_end:
 
 
 
-;returns non-zero in R1 if the key specified in R0 is pressed
+; Returns non-zero in R1 if the key specified in R0 is pressed
 KB_IsKeyPressed:
 	MOV R1, R0
 	CALL KB_GetKey
@@ -649,112 +764,18 @@ _KB_DoHandles_end:
 
 	POP R0
 	RET
-	
-
-_KB_Press_Handles:
-	WORD	0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0
-			
-_KB_Hold_Handles:
-	WORD	0, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 0
-
-_KB_LastKeyPressed:
-	WORD 0
-	
-_KB_NextKeyPressHandle:
-	WORD 0
-_KB_NextKeyHoldHandle:
-	WORD 0
-;Manager.asm
-
-
-_MAN_TogglePause:
-	WORD 0
-
-;Sets Main Menu Background
-MAN_MainMenu:
-
-	PUSH R0
-	
-	MOV R0 , 0 ; Set MainMenuBackground (ID-0)
-	CALL MD_SetBack ; Call Function Set
-	
-	POP R0
-	
-	RET
-	
-;Sets Play Menu Background
-MAN_PlayMenu:
-
-	PUSH R0
-	
-	MOV R0 , 1 ; Set PlayMenuBackground (ID-1)
-	CALL MD_SetBack ; Call Function Set
-	
-	POP R0
-	
-	RET
-	
-;Sets Pause Menu Background
-MAN_PauseClick:
-
-	PUSH R0
-	PUSH R1
-	
-	MOV R1 , _MAN_TogglePause
-	MOV R1, [R1]
-	CMP R1 , 0
-	JNZ _MAN_Pause
-	
-_MAN_UnPause:
-	CALL MAN_PlayMenu
-	JMP _MAN_PauseClick_end
-	
-_MAN_Pause
-	MOV R0 , 2 ; Set PlayPauseMenu (ID-2)
-	CALL MD_SetBack ; Call Function Set
-	CALL IT_DisableGameInterrupts
-	
-	
-_MAN_PauseClick_end:
-	POP R1
-	POP R0
-	
-	RET
-
-
-
-;Plays One Time Sound of the Line Clear
-MAN_LineCleared:
-
-	PUSH R0 ; ID for the Sound
-	
-	MOV R0 , 1 ; Set LineClearedSound (ID-1)
-	CALL MD_Play
-	
-	POP R0
-	
-	RET
-
-;Plays Background Music on Loop 
-MAN_BackgroundMusic:
-
-	PUSH R0 ; ID for the Music
-	
-	MOV R0, 0 ; Set BackgroundMusic (ID-0)
-	CALL MD_Loop
-	
-	POP R0
-	
-	RET
-
 
 _IT_CLR_TV_TD 	EQU 0FF6FH	; Bitmask to clear TV & TD
 _IT_SET_INTS 	EQU 00F80H	; Bitmask to set IE and IE# (0-3)
 _IT_CLR_GINTS 	EQU 0F8FFH	; Bitmask to clear game interrupts IE# (0-2)
 _IT_SET_GINTS	EQU 00700H	; Bitmask to set game interrupts IE# (0-2)
 
+_IT_interrupt_vectors:
+	WORD _IT_INT0, _IT_INT1, _IT_INT2, _IT_INT3,
+		_IT_EXCESSO, _IT_DIV0, _IT_COD_INV, _IT_D_DESALINHADO, _IT_I_DESALINHADO
+
+
+; Sets all interrupt flags as needed and configures the BTE
 IT_SetupInterrupts:
 	PUSH R0
 	PUSH R1
@@ -772,6 +793,7 @@ IT_SetupInterrupts:
 	RET
 
 
+; Pauses interrupts related to gameplay
 IT_DisableGameInterrupts:
 	PUSH R0
 	MOV R0, _IT_CLR_GINTS			; Load bitmask
@@ -780,6 +802,7 @@ IT_DisableGameInterrupts:
 	RET
 
 
+; Resumes interrupts related to gameplay
 IT_EnableGameInterrupts:
 	PUSH R0
 	MOV R0, _IT_SET_GINTS			; Load bitmask
@@ -787,6 +810,7 @@ IT_EnableGameInterrupts:
 	POP R0
 	RET
 
+; ===Interrupt handlers===
 
 _IT_INT0:
 _IT_drawINT:
@@ -820,11 +844,10 @@ _IT_D_DESALINHADO:
 	
 _IT_I_DESALINHADO:
 	RFE
+;TetraLogic.asm
+;Holding itself together with Hopes And Dreams~~~
 
-_IT_interrupt_vectors:
-	WORD _IT_INT0, _IT_INT1, _IT_INT2, _IT_INT3,
-		_IT_EXCESSO, _IT_DIV0, _IT_COD_INV, _IT_D_DESALINHADO, _IT_I_DESALINHADO
-;RNG.asm
+; RNG.asm
 
 ;this is where the RNG value is stored
 RNG_ADDRESS:
@@ -860,10 +883,6 @@ RNG_STEP:
 	POP R1
 
 	RET
-
-;TetraLogic.asm
-;Holding itself together with Hopes And Dreams~~~
-
 
 _TL_TetraColors: WORD 0000H,0FFF0H	,0FF00H	,0F5F8H	   ,0F0FFH	,0F00FH	,0FF80H	   ,0F70FH
 _TL_Tetras: WORD	  0000H,_TL_Square,_TL_Z_Horz,_TL_invZ_Horz,_TL_I_Vert,_TL_L_ANG0,_TL_invL_ANG0,_TL_T_ANG0
