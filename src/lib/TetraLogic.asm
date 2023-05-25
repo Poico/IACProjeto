@@ -1,10 +1,11 @@
 #include:lib/MediaDrive.asm
+#include:lib/RNG.asm
 
 ;TetraLogic.asm
 ;Holding itself together whit Hopes And Dreams~~~
 
 
-_TL_TetraColors: WORD 0000H,FFF0H	,FF00H	,F5F8H	   ,F0FFH	,F00FH	,FF80H	   ,F70FH
+_TL_TetraColors: WORD 0000H,0FFF0H	,0FF00H	,0F5F8H	   ,0F0FFH	,0F00FH	,0FF80H	   ,0F70FH
 _TL_Tetras: WORD	  0000H,_TL_Square,_TL_Z_Horz,_TL_invZ_Horz,_TL_I_Vert,_TL_L_ANG0,_TL_invL_ANG0,_TL_T_ANG0
 				;Master Block
 				;NEXT SHAPE BL1X BL1Y BL2X BL2Y BL3X BL3Y BL4X BL4Y
@@ -42,6 +43,9 @@ _TL_MovingTetra:
 	,0000,0000 ;block 2
 	,0000,0000 ;block 3
 	,0000,0000 ;block 4
+
+_TL_NextTetra:
+	WORD 0000
 
 _TL_Board:
 	TABLE 200
@@ -637,6 +641,196 @@ _TL_DrawBoard_noskip:
 	JNZ _TL_DrawBoard_height
 
 	POP R8
+	POP R7
+	POP R6
+	POP R5
+	POP R4
+	POP R3
+	POP R2
+	POP R1
+	POP R0
+
+	RET
+
+;Input nothing
+;Output nothing
+;Draw All TetraLogic stuff
+TL_DrawTetraLogic:
+	CALL TL_DrawBoard
+	CALL TL_DrawMovingTetra
+	CALL TL_DrawNextTertra
+	RET
+
+;Input nothing
+;Output nothing
+;Moves The Tetra Left (wow)
+TL_MoveTetraLeft:
+	PUSH R0
+	PUSH R1
+
+	MOV R0,-1
+	MOV R0,0
+	CALL TL_MoveTetra
+
+	POP R1
+	POP R0
+	RET
+
+;Input nothing
+;Output nothing
+;Moves The Tetra Right (wow)
+TL_MoveTetraRight:
+	PUSH R0
+	PUSH R1
+
+	MOV R0,1
+	MOV R0,0
+	CALL TL_MoveTetra
+
+	POP R1
+	POP R0
+	RET
+
+;Input nothing
+;OutPut nothing
+;Inializes the tetralogic stuff
+TL_InitTetraLogic:
+
+	PUSH R0
+	PUSH R1
+	PUSH R2
+
+	MOV R2,7
+	CALL TL_ResetBoard
+	CALL RNG_STEP
+	MOD R0,R2
+	ADD R0,1
+	MOV R1,_TL_NextTetra
+	MOV [R1],R0
+	CALL RNG_STEP
+	MOD R0,R2
+	ADD R0,1
+	CALL TL_MakeTetra
+	MOV R0,4
+	MOV R1,0
+	CALL TL_MoveTetra
+
+	POP R2
+	POP R1
+	POP R0
+
+	RET
+
+;Input nothing
+;OutPut nothing
+;Makes the new moving tetra from the next and makes a new next
+TL_MakeNextTetra:
+
+	PUSH R0
+	PUSH R1
+	PUSH R2
+	PUSH R3
+
+	CALL TL_FinalizeTetra
+	MOV R3,7
+	MOV R2,_TL_NextTetra
+	MOV R0,[R2]
+	CALL TL_MakeTetra
+	MOV R0,4
+	MOV R1,0
+	CALL TL_MoveTetra
+	CALL RNG_STEP
+	MOD R0,R3
+	ADD R0,1
+	MOV R2,_TL_NextTetra
+	MOV [R2],R0
+
+	POP R3
+	POP R2
+	POP R1
+	POP R0
+
+	RET
+
+;Input nothing
+;Output nothing
+;Makes The Piece Gravatity and ending
+TL_TetraLogicGrav:
+	
+	PUSH R0
+	PUSH R1
+	PUSH R2
+
+	MOV R0,0
+	MOV R1,1
+	CALL TL_MoveTetra
+	CMP R2,1
+	JZ _TL_TetraLogicGrav_Nocoll
+
+	CALL TL_MakeNextTetra
+	CALL TL_BoardCheck
+	;[TODO : Score Goes Here]
+
+_TL_TetraLogicGrav_Nocoll:
+
+	POP R2
+	POP R1
+	POP R0
+
+	RET
+
+TL_DrawNextTertra:
+
+	PUSH R0
+	PUSH R1
+	PUSH R2
+	PUSH R3
+	PUSH R4
+	PUSH R5
+	PUSH R6
+	PUSH R7
+
+	MOV R0,_TL_NextTetra
+	MOV R0,[R0];ID
+
+	SHL R0,1
+
+	MOV R1,_TL_TetraColors
+	MOV R1,[R1+R0];Color
+
+	MOV R2,_TL_Tetras
+	MOV R2,[R2+R0]
+	MOV R2,[R2]
+	ADD R2,2;BlockData
+
+	SHR R0,1
+	MOV R7,4
+
+_TL_DrawNextTertra_loop:
+
+	MOV R3,23
+	MOV R4,38
+	MOV R5,[R2]
+	SHL R5,1
+	MOV R6,[R2+2]
+	SHL R6,1
+	ADD R3,R5
+	ADD R4,R6
+	MOV [MD_Commands+0CH],R3;Set X
+	MOV [MD_Commands+0AH],R4;Set Y
+	MOV [MD_Commands+12H],R1;Draw
+	MOV [MD_Commands+12H],R1;Draw
+	MOV [MD_Commands+0CH],R3;Set X
+	ADD R4,1
+	MOV [MD_Commands+0AH],R4;Set Y
+	MOV [MD_Commands+12H],R1;Draw
+	MOV [MD_Commands+12H],R1;Draw
+
+	ADD R2,4
+	SUB R7,1
+	CMP R7,0
+	JNZ _TL_DrawNextTertra_loop
+
 	POP R7
 	POP R6
 	POP R5
