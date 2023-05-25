@@ -1,3 +1,5 @@
+#include:lib/MediaDrive.asm
+
 ;TetraLogic.asm
 ;Holding itself together whit Hopes And Dreams~~~
 
