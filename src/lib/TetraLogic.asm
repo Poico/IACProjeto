@@ -1,5 +1,5 @@
-#include:lib/MediaDrive.asm
-#include:lib/RNG.asm
+#include:MediaDrive.asm
+#include:RNG.asm
 
 ;TetraLogic.asm
 ;Holding itself together whit Hopes And Dreams~~~
