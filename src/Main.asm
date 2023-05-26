@@ -1,5 +1,7 @@
 ; Main.asm - Entry point and main code file
 
+#include:lib/Header.asm
+
 	PLACE 0
 entry:
 	; stack setup

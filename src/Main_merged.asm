@@ -1,5 +1,10 @@
 ; Main.asm - Entry point and main code file
 
+; *********************************************************************************
+; * Projeto IAC 2022/23 - IST-UL - Versão Intermédia
+; * Alunos: Rodrigo Gomes (106644) Diogo Diniz (106196) Tomás Antunes (106265)
+; *********************************************************************************
+
 	PLACE 0
 entry:
 	; stack setup
@@ -113,7 +118,7 @@ MD_ClearScreen:
 
 ;Input R0(Color)
 ;Output nothing
-;Fills the background whit a color
+;Fills the background with a color
 ;[WARNING:TALK TO TEACHER ABOUT THE N-PIXEL THING]
 ;Best to not use this
 MD_ColorBack:
