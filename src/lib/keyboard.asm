@@ -8,8 +8,8 @@ _KB_KEYI	EQU 0E000H ; read to check
 
 
 _KB_Press_Handles:
-	;		0		1		2		3
-	WORD	0,		0,		0,		0,
+	;		0								1		2		3
+	WORD	MAN_BackgroundMusicClick,		0,		0,		0,
 	;		4		5		6		7
 			0,		0,		0,		0,
 	;		8		9		A		B

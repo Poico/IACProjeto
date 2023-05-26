@@ -13,6 +13,8 @@ entry:
 	
 	CALL TL_InitTetraLogic
 	
+	CALL MAN_StartBackgroundMusic
+	
 	
 	
 poll_loop:
