@@ -957,7 +957,7 @@ _TL_L_ANG2 : WORD _TL_L_ANG3,0001,0001,0000,0000,0001,0000,0001,0002
 _TL_L_ANG3 : WORD _TL_L_ANG0,0001,0000,0000,0000,0000,0001,0002,0000
 
 _TL_invL_ANG0 : WORD _TL_invL_ANG1,0001,0001,0001,0000,0001,0002,0000,0002
-_TL_invL_ANG1 : WORD _TL_invL_ANG2,0001,0001,0000,0001,0002,0001,0002,0000
+_TL_invL_ANG1 : WORD _TL_invL_ANG2,0001,0000,0000,0000,0002,0000,0002,0001
 _TL_invL_ANG2 : WORD _TL_invL_ANG3,0000,0001,0001,0000,0000,0000,0000,0002
 _TL_invL_ANG3 : WORD _TL_invL_ANG0,0001,0001,0000,0001,0000,0000,0002,0001
 
@@ -1261,7 +1261,7 @@ TL_TryBlock:
 	MOV R2,0
 	RET
 _TL_PassXMin:
-	MOV R2,10
+	MOV R2,9
 	CMP R0,R2
 	JN _TL_PassXMax
 	MOV R2,0
@@ -1700,6 +1700,7 @@ TL_TetraLogicGrav:
 
 	CALL TL_MakeNextTetra
 	CALL TL_BoardCheck
+	CALL MAN_LineCleared
 	;[TODO : Score Goes Here]
 
 _TL_TetraLogicGrav_Nocoll:
@@ -1709,6 +1710,31 @@ _TL_TetraLogicGrav_Nocoll:
 	POP R0
 
 	RET
+
+;Input nothing
+;Output nothing
+;Clears the next tetra holder spot
+TL_ClearNextTetra:
+	PUSH R0
+	PUSH R1
+	PUSH R2
+	PUSH R3
+	PUSH R4
+	MOV R0,23
+	MOV R1,38
+	MOV R2,8
+	MOV R3,8
+	MOV R4,0000H
+
+	CALL MD_DrawRect
+
+	POP R4
+	POP R3
+	POP R2
+	POP R1
+	POP R0
+	RET
+
 
 TL_DrawNextTertra:
 
@@ -1720,6 +1746,8 @@ TL_DrawNextTertra:
 	PUSH R5
 	PUSH R6
 	PUSH R7
+
+	CALL TL_ClearNextTetra
 
 	MOV R0,_TL_NextTetra
 	MOV R0,[R0];ID
