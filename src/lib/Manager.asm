@@ -28,6 +28,7 @@ MAN_PlayMenu:
 	
 	MOV R0 , 1 ; Set PlayMenuBackground (ID-1)
 	CALL MD_SetBack ; Call Function Set
+	CALL IT_EnableGameInterrupts
 	
 	POP R0
 	
@@ -43,12 +44,13 @@ MAN_PauseClick:
 	
 	MOV R1, [_MAN_TogglePause]
 	CMP R1 , 0
-	JNZ _MAN_Pause
+	JEQ _MAN_Pause
 	
 _MAN_UnPause:
 	CALL MAN_PlayMenu
 	MOV R0, 0
 	MOV [_MAN_TogglePause], R0
+	CALL IT_EnableGameInterrupts
 	JMP _MAN_PauseClick_end
 	
 _MAN_Pause:
@@ -57,7 +59,6 @@ _MAN_Pause:
 	MOV R0, 1
 	MOV [_MAN_TogglePause], R0
 	CALL IT_DisableGameInterrupts
-	
 	
 _MAN_PauseClick_end:
 	POP R1

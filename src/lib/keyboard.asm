@@ -8,12 +8,12 @@ _KB_KEYI	EQU 0E000H ; read to check
 
 
 _KB_Press_Handles:
-	;		0								1		2		3
-	WORD	MAN_BackgroundMusicClick,		0,		0,		0,
-	;		4		5		6		7
-			0,		0,		0,		0,
-	;		8		9		A		B
-			0,		0,		0,		0,
+	;		0							1				2		3
+	WORD	MAN_BackgroundMusicClick,	TL_RotateTetra,	0,		0,
+	;		4					5	6					7
+			TL_MoveTetraLeft,	0,	TL_MoveTetraRight,	0,
+	;		8		9				A		B
+			0,		TL_SlamTetra,	0,		0,
 	;		C		D					E		F
 			0, 		MAN_PauseClick,		0, 		MAN_PlayMenu
 			
@@ -33,6 +33,9 @@ _KB_LastKeyPressed:
 _KB_NextKeyPressHandle:
 	WORD 0
 _KB_NextKeyHoldHandle:
+	WORD 0
+	
+_KB_HandleEnabled:
 	WORD 0
 
 ; Returns first pressed key in R0
@@ -146,11 +149,22 @@ _KB_PollKey_end:
 	POP R0
 	RET
 
+KB_EnableHandle:
+	PUSH R0
+	MOV R0, 1
+	MOV [_KB_HandleEnabled], R0
+	POP R0
+	RET
 
 ; Polls keyboard and executes assigned functions
 KB_DoHandles:
 	PUSH R0	; Handle pointer
 	
+	MOV R0, [_KB_HandleEnabled]
+	TEST R0, R0
+	JEQ _KB_DoHandles_end
+	XOR R0, R0
+	MOV [_KB_HandleEnabled], R0		; Reset handle lock
 	
 _KB_DoHandles_hold:
 	MOV R0, [_KB_NextKeyHoldHandle]	; Load handle pointer
@@ -161,13 +175,14 @@ _KB_DoHandles_hold:
 _KB_DoHandles_press:
 	MOV R0, [_KB_NextKeyPressHandle]; Load handle pointer
 	TEST R0, R0						; (Update Z flag)
-	JEQ _KB_DoHandles_end			; Skip if NULL
+	JEQ _KB_DoHandles_reset			; Skip if NULL
 	CALL R0							; Call handle
 	
-_KB_DoHandles_end:
+_KB_DoHandles_reset:
 	XOR R0, R0						; Reset handle pointers
 	MOV [_KB_NextKeyHoldHandle], R0
 	MOV [_KB_NextKeyPressHandle], R0
 
+_KB_DoHandles_end:
 	POP R0
 	RET

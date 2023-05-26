@@ -13,6 +13,7 @@ MAX			EQU 100
 
 ; Draws score bar and writes to hex display
 SB_DrawSB:
+	PUSH R0
 	PUSH R1				; <draw call args>
 	PUSH R2				; <draw call args>
 	PUSH R3				; <draw call args>
@@ -98,6 +99,7 @@ _SB_DrawSB_End:
 	POP R3
 	POP R2
 	POP R1
+	POP R0
 	RET
 	
 ; Steps the color animation

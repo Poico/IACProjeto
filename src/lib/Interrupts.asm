@@ -59,6 +59,7 @@ IT_EnableGameInterrupts:
 _IT_INT0:
 _IT_drawINT:
 	CALL SB_DrawSB
+	CALL TL_DrawTetraLogic
 	RFE
 	
 _IT_INT1:
@@ -68,11 +69,12 @@ _IT_animationINT:
 	
 _IT_INT2:
 _IT_gravityINT:
+	CALL TL_TetraLogicGrav
 	RFE
 	
 _IT_INT3:
 _IT_inputINT:
-	CALL KB_DoHandles
+	CALL KB_EnableHandle
 	RFE
 	
 _IT_EXCESSO:

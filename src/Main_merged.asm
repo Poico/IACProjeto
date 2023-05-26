@@ -19,6 +19,7 @@ entry:
 	
 poll_loop:
 	CALL KB_PollKey
+	CALL KB_DoHandles
 	JMP poll_loop
 	
 end:
@@ -397,6 +398,7 @@ BC_WriteToDisp:
 
 ; Draws score bar and writes to hex display
 SB_DrawSB:
+	PUSH R0
 	PUSH R1				; <draw call args>
 	PUSH R2				; <draw call args>
 	PUSH R3				; <draw call args>
@@ -482,6 +484,7 @@ _SB_DrawSB_End:
 	POP R3
 	POP R2
 	POP R1
+	POP R0
 	RET
 	
 ; Steps the color animation
@@ -541,6 +544,7 @@ MAN_PlayMenu:
 	
 	MOV R0 , 1 ; Set PlayMenuBackground (ID-1)
 	CALL MD_SetBack ; Call Function Set
+	CALL IT_EnableGameInterrupts
 	
 	POP R0
 	
@@ -556,12 +560,13 @@ MAN_PauseClick:
 	
 	MOV R1, [_MAN_TogglePause]
 	CMP R1 , 0
-	JNZ _MAN_Pause
+	JEQ _MAN_Pause
 	
 _MAN_UnPause:
 	CALL MAN_PlayMenu
 	MOV R0, 0
 	MOV [_MAN_TogglePause], R0
+	CALL IT_EnableGameInterrupts
 	JMP _MAN_PauseClick_end
 	
 _MAN_Pause:
@@ -570,7 +575,6 @@ _MAN_Pause:
 	MOV R0, 1
 	MOV [_MAN_TogglePause], R0
 	CALL IT_DisableGameInterrupts
-	
 	
 _MAN_PauseClick_end:
 	POP R1
@@ -633,12 +637,12 @@ _KB_KEYI	EQU 0E000H ; read to check
 
 
 _KB_Press_Handles:
-	;		0								1		2		3
-	WORD	MAN_BackgroundMusicClick,		0,		0,		0,
-	;		4		5		6		7
-			0,		0,		0,		0,
-	;		8		9		A		B
-			0,		0,		0,		0,
+	;		0							1				2		3
+	WORD	MAN_BackgroundMusicClick,	TL_RotateTetra,	0,		0,
+	;		4					5	6					7
+			TL_MoveTetraLeft,	0,	TL_MoveTetraRight,	0,
+	;		8		9				A		B
+			0,		TL_SlamTetra,	0,		0,
 	;		C		D					E		F
 			0, 		MAN_PauseClick,		0, 		MAN_PlayMenu
 			
@@ -658,6 +662,9 @@ _KB_LastKeyPressed:
 _KB_NextKeyPressHandle:
 	WORD 0
 _KB_NextKeyHoldHandle:
+	WORD 0
+	
+_KB_HandleEnabled:
 	WORD 0
 
 ; Returns first pressed key in R0
@@ -771,11 +778,22 @@ _KB_PollKey_end:
 	POP R0
 	RET
 
+KB_EnableHandle:
+	PUSH R0
+	MOV R0, 1
+	MOV [_KB_HandleEnabled], R0
+	POP R0
+	RET
 
 ; Polls keyboard and executes assigned functions
 KB_DoHandles:
 	PUSH R0	; Handle pointer
 	
+	MOV R0, [_KB_HandleEnabled]
+	TEST R0, R0
+	JEQ _KB_DoHandles_end
+	XOR R0, R0
+	MOV [_KB_HandleEnabled], R0		; Reset handle lock
 	
 _KB_DoHandles_hold:
 	MOV R0, [_KB_NextKeyHoldHandle]	; Load handle pointer
@@ -786,14 +804,15 @@ _KB_DoHandles_hold:
 _KB_DoHandles_press:
 	MOV R0, [_KB_NextKeyPressHandle]; Load handle pointer
 	TEST R0, R0						; (Update Z flag)
-	JEQ _KB_DoHandles_end			; Skip if NULL
+	JEQ _KB_DoHandles_reset			; Skip if NULL
 	CALL R0							; Call handle
 	
-_KB_DoHandles_end:
+_KB_DoHandles_reset:
 	XOR R0, R0						; Reset handle pointers
 	MOV [_KB_NextKeyHoldHandle], R0
 	MOV [_KB_NextKeyPressHandle], R0
 
+_KB_DoHandles_end:
 	POP R0
 	RET
 
@@ -847,6 +866,7 @@ IT_EnableGameInterrupts:
 _IT_INT0:
 _IT_drawINT:
 	CALL SB_DrawSB
+	CALL TL_DrawTetraLogic
 	RFE
 	
 _IT_INT1:
@@ -856,11 +876,12 @@ _IT_animationINT:
 	
 _IT_INT2:
 _IT_gravityINT:
+	CALL TL_TetraLogicGrav
 	RFE
 	
 _IT_INT3:
 _IT_inputINT:
-	CALL KB_DoHandles
+	CALL KB_EnableHandle
 	RFE
 	
 _IT_EXCESSO:
@@ -1579,7 +1600,7 @@ TL_MoveTetraLeft:
 	PUSH R1
 
 	MOV R0,-1
-	MOV R0,0
+	MOV R1,0
 	CALL TL_MoveTetra
 
 	POP R1
@@ -1594,7 +1615,7 @@ TL_MoveTetraRight:
 	PUSH R1
 
 	MOV R0,1
-	MOV R0,0
+	MOV R1,0
 	CALL TL_MoveTetra
 
 	POP R1

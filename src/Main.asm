@@ -19,6 +19,7 @@ entry:
 	
 poll_loop:
 	CALL KB_PollKey
+	CALL KB_DoHandles
 	JMP poll_loop
 	
 end:

@@ -668,7 +668,7 @@ TL_MoveTetraLeft:
 	PUSH R1
 
 	MOV R0,-1
-	MOV R0,0
+	MOV R1,0
 	CALL TL_MoveTetra
 
 	POP R1
@@ -683,7 +683,7 @@ TL_MoveTetraRight:
 	PUSH R1
 
 	MOV R0,1
-	MOV R0,0
+	MOV R1,0
 	CALL TL_MoveTetra
 
 	POP R1
