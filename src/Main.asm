@@ -37,6 +37,5 @@ end:
 
 ; stack
 	PLACE 3800H
-	STACK 07FEH
-	PLACE 3FFEH
+	STACK 0400H
 stack_top:
