@@ -1263,24 +1263,25 @@ TL_TryBlock:
 	
 	CMP R0,0
 	JNN _TL_PassXMin
-	MOV R2,0
+	MOV R2,1
 	RET
 _TL_PassXMin:
 	MOV R2,9
 	CMP R0,R2
 	JN _TL_PassXMax
-	MOV R2,0
+	JZ _TL_PassXMax
+	MOV R2,1
 	RET
 _TL_PassXMax:
-	CMP R0,0
+	CMP R1,0
 	JNN _TL_PassYMin
-	MOV R2,0
+	MOV R2,1
 	RET
 _TL_PassYMin:
-	MOV R2,20
-	CMP R0,R2
+	MOV R2,19
+	CMP R1,R2
 	JN _TL_PassYMax
-	MOV R2,0
+	MOV R2,1
 	RET
 _TL_PassYMax:
 
@@ -1808,6 +1809,5 @@ _TL_DrawNextTertra_loop:
 
 ; stack
 	PLACE 3800H
-	STACK 07FEH
-	PLACE 3FFEH
+	STACK 0400H
 stack_top:
