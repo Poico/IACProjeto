@@ -8,14 +8,14 @@ _KB_KEYI	EQU 0E000H ; read to check
 
 
 _KB_Press_Handles:
-	;		0							1				2		3
-	WORD	MAN_BackgroundMusicClick,	TL_RotateTetra,	0,		0,
-	;		4					5	6					7
-			TL_MoveTetraLeft,	0,	TL_MoveTetraRight,	0,
-	;		8		9				A		B
-			0,		TL_SlamTetra,	0,		0,
-	;		C		D					E		F
-			0, 		MAN_PauseClick,		0, 		MAN_PlayMenu
+	;		0							1					2		3
+	WORD	MAN_BackgroundMusicClick,	TL_RotateTetra,		0,		0,
+	;		4						5	6					7
+			TL_MoveTetraLeft,		0,	TL_MoveTetraRight,	0,
+	;		8		9				A	B
+			0,		TL_SlamTetra,	0,	0,
+	;		C		D				E	F
+			0, 		MAN_PauseClick,	0, 	MAN_PlayMenu
 			
 _KB_Hold_Handles:
 	;		0		1		2		3
@@ -86,7 +86,6 @@ _KB_GetKey_end:
 	POP R2
 	POP R1
 	RET
-
 
 
 ; Returns non-zero in R1 if the key specified in R0 is pressed

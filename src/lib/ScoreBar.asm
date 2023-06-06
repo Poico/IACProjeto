@@ -23,7 +23,7 @@ SB_DrawSB:
 	PUSH R7				; maxY
 	PUSH R10			; aux
 	
-	MOV R0, [SB_Score]	; Get score
+	MOV R0, [_SB_Score]	; Get score
 	
 _SB_DrawSB_writePercent:
 	MOV R10, 100
@@ -122,9 +122,32 @@ _SB_UpdateColor_NoV:
 	POP R1
 	POP R0
 	RET
+
+;Resets score to 0
+SB_ResetScore:
+	PUSH R0
+	XOR R0, R0
+	MOV [_SB_Score], R0
+	POP R0
+	
+;Adds score based on the number of lines cleared in R0
+SB_AddScore:
+	PUSH R0
+	PUSH R1
+	
+	MOV R1, 1
+	SHL R1, R0
+	
+	MOV R0, [_SB_Score]
+	ADD R0, R1
+	MOV [_SB_Score], R0
+	
+	POP R1
+	POP R0
+	
 	
 _SB_Color:
 	WORD 0FF00H
 	
-SB_Score:
-	WORD 50
+_SB_Score:
+	WORD 0
