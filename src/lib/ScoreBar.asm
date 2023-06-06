@@ -129,6 +129,7 @@ SB_ResetScore:
 	XOR R0, R0
 	MOV [_SB_Score], R0
 	POP R0
+	RET
 	
 ;Adds score based on the number of lines cleared in R0
 SB_AddScore:
@@ -144,6 +145,7 @@ SB_AddScore:
 	
 	POP R1
 	POP R0
+	RET
 	
 	
 _SB_Color:
