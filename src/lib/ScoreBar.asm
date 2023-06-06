@@ -133,7 +133,8 @@ SB_ResetScore:
 	
 ;Adds score based on the number of lines cleared in R0
 SB_AddScore:
-	JEQ R0, _SB_AddScore_ret
+	CMP R0, 0
+	JEQ _SB_AddScore_ret
 	PUSH R0
 	PUSH R1
 	
