@@ -137,7 +137,11 @@ SB_AddScore:
 	PUSH R1
 	
 	MOV R1, 1
-	SHL R1, R0
+	
+_SB_AddScore_loop:
+	SHL R1, 1
+	SUB R0, 1
+	JNE _SB_AddScore_loop
 	
 	MOV R0, [_SB_Score]
 	ADD R0, R1
