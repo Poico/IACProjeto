@@ -36,7 +36,7 @@ _SB_DrawSB_writePercent:
 	CALL BC_WriteToDisp	; Print BCD to hex
 	
 _SB_DrawSB_calcFill:
-	MOV R0, [SB_Score]	; Get score again
+	MOV R0, [_SB_Score]	; Get score again
 	MOV R5, R0			; fillPixels = score * HEIGHT * WIDTH / MAX
 	MOV R10, BHEIGHT
 	MUL R5, R10
