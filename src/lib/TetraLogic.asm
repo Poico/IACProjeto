@@ -467,7 +467,6 @@ _TL_FinalizeTetra_loop:
 ;Finds Clears Moves and returns the cleard lines
 TL_BoardCheck:
 
-	PUSH R0
 	PUSH R1
 	PUSH R2
 	PUSH R3
@@ -491,10 +490,11 @@ _TL_BoardCheck_skip:
 	CMP R2,0
 	JNZ _TL_BoardCheck_loop
 
+	MOV R0,R3
+
 	POP R3
 	POP R2
 	POP R1
-	POP R0
 
 	RET
 
@@ -769,6 +769,7 @@ TL_TetraLogicGrav:
 
 	CALL TL_MakeNextTetra
 	CALL TL_BoardCheck
+	CALL SB_AddScore
 	CALL MAN_LineCleared
 	;[TODO : Score Goes Here]
 

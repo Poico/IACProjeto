@@ -413,7 +413,7 @@ SB_DrawSB:
 	PUSH R7				; maxY
 	PUSH R10			; aux
 	
-	MOV R0, [SB_Score]	; Get score
+	MOV R0, [_SB_Score]	; Get score
 	
 _SB_DrawSB_writePercent:
 	MOV R10, 100
@@ -426,7 +426,7 @@ _SB_DrawSB_writePercent:
 	CALL BC_WriteToDisp	; Print BCD to hex
 	
 _SB_DrawSB_calcFill:
-	MOV R0, [SB_Score]	; Get score again
+	MOV R0, [_SB_Score]	; Get score again
 	MOV R5, R0			; fillPixels = score * HEIGHT * WIDTH / MAX
 	MOV R10, BHEIGHT
 	MUL R5, R10
@@ -512,12 +512,44 @@ _SB_UpdateColor_NoV:
 	POP R1
 	POP R0
 	RET
+
+;Resets score to 0
+SB_ResetScore:
+	PUSH R0
+	XOR R0, R0
+	MOV [_SB_Score], R0
+	POP R0
+	RET
+	
+;Adds score based on the number of lines cleared in R0
+SB_AddScore:
+	CMP R0, 0
+	JEQ _SB_AddScore_ret
+	PUSH R0
+	PUSH R1
+	
+	MOV R1, 1
+	
+_SB_AddScore_loop:
+	SHL R1, 1
+	SUB R0, 1
+	JNE _SB_AddScore_loop
+	
+	MOV R0, [_SB_Score]
+	ADD R0, R1
+	MOV [_SB_Score], R0
+	
+	POP R1
+	POP R0
+_SB_AddScore_ret:
+	RET
+	
 	
 _SB_Color:
 	WORD 0FF00H
 	
-SB_Score:
-	WORD 50
+_SB_Score:
+	WORD 0
 ; keyboard.asm - Keyboard interfacing functions
 
 ; includes
@@ -642,14 +674,14 @@ _KB_KEYI	EQU 0E000H ; read to check
 
 
 _KB_Press_Handles:
-	;		0							1				2		3
-	WORD	MAN_BackgroundMusicClick,	TL_RotateTetra,	0,		0,
-	;		4					5	6					7
-			TL_MoveTetraLeft,	0,	TL_MoveTetraRight,	0,
-	;		8		9				A		B
-			0,		TL_SlamTetra,	0,		0,
-	;		C		D					E		F
-			0, 		MAN_PauseClick,		0, 		MAN_PlayMenu
+	;		0							1					2		3
+	WORD	MAN_BackgroundMusicClick,	TL_RotateTetra,		0,		0,
+	;		4						5	6					7
+			TL_MoveTetraLeft,		0,	TL_MoveTetraRight,	0,
+	;		8		9				A	B
+			0,		TL_SlamTetra,	0,	0,
+	;		C		D				E	F
+			0, 		MAN_PauseClick,	0, 	MAN_PlayMenu
 			
 _KB_Hold_Handles:
 	;		0		1		2		3
@@ -720,7 +752,6 @@ _KB_GetKey_end:
 	POP R2
 	POP R1
 	RET
-
 
 
 ; Returns non-zero in R1 if the key specified in R0 is pressed
@@ -1404,7 +1435,6 @@ _TL_FinalizeTetra_loop:
 ;Finds Clears Moves and returns the cleard lines
 TL_BoardCheck:
 
-	PUSH R0
 	PUSH R1
 	PUSH R2
 	PUSH R3
@@ -1428,10 +1458,11 @@ _TL_BoardCheck_skip:
 	CMP R2,0
 	JNZ _TL_BoardCheck_loop
 
+	MOV R0,R3
+
 	POP R3
 	POP R2
 	POP R1
-	POP R0
 
 	RET
 
@@ -1706,6 +1737,7 @@ TL_TetraLogicGrav:
 
 	CALL TL_MakeNextTetra
 	CALL TL_BoardCheck
+	CALL SB_AddScore
 	CALL MAN_LineCleared
 	;[TODO : Score Goes Here]
 
