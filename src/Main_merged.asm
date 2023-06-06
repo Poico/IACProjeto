@@ -1312,6 +1312,7 @@ _TL_PassYMin:
 	MOV R2,19
 	CMP R1,R2
 	JN _TL_PassYMax
+	JZ _TL_PassYMax
 	MOV R2,1
 	RET
 _TL_PassYMax:
