@@ -4,6 +4,10 @@
 #include:MediaDrive.asm
 #include:RNG.asm
 
+MD_Command_SetX EQU MD_Commands+0CH
+MD_Command_SetY EQU MD_Commands+0AH
+MD_Command_Draw EQU MD_Commands+12H
+
 _TL_TetraColors: WORD 0000H,0FFF0H	,0FF00H	,0F5F8H	   ,0F0FFH	,0F00FH	,0FF80H	   ,0F70FH
 _TL_Tetras: WORD	  0000H,_TL_Square,_TL_Z_Horz,_TL_invZ_Horz,_TL_I_Vert,_TL_L_ANG0,_TL_invL_ANG0,_TL_T_ANG0
 				;Master Block
@@ -58,8 +62,8 @@ TL_ResetBoard:
 	PUSH R2
 
 	MOV R0,_TL_Board
-	MOV R1,400
-	MOV R2,0
+	MOV R1,400	;Warning Comment
+	MOV R2,0	;Warning Comment	
 
 _TL_ResetBoard_loop:
 	SUB R1,2
@@ -149,7 +153,9 @@ TL_RotateTetra:
 _TL_RotateTetra_testloop:
 
 	PUSH R4
-
+	PUSH R0   ;Verify This
+	PUSH R2
+	
 	MOV R3,[R1];get new X
 	ADD R3,R5
 	ADD R1,2
@@ -158,16 +164,15 @@ _TL_RotateTetra_testloop:
 	ADD R4,R6
 	ADD R1,2
 
-	PUSH R0
 	PUSH R1
-	PUSH R2
+
 
 	MOV R0,R3
 	MOV R1,R4
 	CALL TL_TryBlock
 
-	POP R2
 	POP R1
+	POP R2
 	POP R0
 
 	POP R4
@@ -609,15 +614,15 @@ _TL_DrawBoard_height:
 	MOV R2,10
 
 
-	MOV [MD_Commands+0CH],R6;Set X
-	MOV [MD_Commands+0AH],R4;Set Y
+	MOV [MD_Command_SetX],R6;Set X
+	MOV [MD_Command_SetY],R4;Set Y
 	MOV R8,R0
 _TL_DrawBoard_width:
 	MOV R5,[R0]
 	SHL R5,1
 	MOV R5,[R1+R5]
-	MOV [MD_Commands+12H],R5;Draw
-	MOV [MD_Commands+12H],R5;Draw
+	MOV [MD_Command_Draw],R5;Draw
+	MOV [MD_Command_Draw],R5;Draw
 	ADD R0,2
 
 ;end width
