@@ -87,6 +87,7 @@ _SB_DrawSB_drawPartial:
 	SUB R1, 1
 	MOV R2, R6
 	MOV R3, 1
+	;Color already set
 	;Input R0(X) R1(Y) R2(width) R3(height) R4(Color)
 	CALL MD_DrawRect
 	

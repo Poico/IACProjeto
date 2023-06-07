@@ -2,6 +2,11 @@
 
 #include:lib/Header.asm
 
+; stack
+	PLACE 3800H
+	STACK 0400H
+stack_top:
+
 	PLACE 0
 entry:
 	; stack setup
@@ -34,8 +39,3 @@ end:
 #include:lib/Manager.asm
 #include:lib/TetraLogic.asm
 #include:lib/keyboard.asm
-
-; stack
-	PLACE 3800H
-	STACK 0400H
-stack_top:

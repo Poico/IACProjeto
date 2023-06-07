@@ -38,28 +38,30 @@ WORD 00007H,00020H
 ,01111H,01111H,03330H,00003H,03300H,01033H,01111H
 ,01111H,01111H,00000H,00000H,00000H,01000H,01111H
 _MD_Glyphs:
-;		0	  1	  	2	  	3	  	4	  	5	  	6	  7	  	8	  9	  	A	  	B	  	C	  	D	  E	  	F
-WORD 07B6FH,02492H,073E7H,079E7H,049EDH,079CFH,07BCFH,04927H,07BEFH,049EFH,05BEFH,03AEBH,0624EH,03B6BH,073CFH,013CFH
+;		0		1		2		3		4		5		6		7
+WORD	07B6FH,	02492H,	073E7H,	079E7H,	049EDH,	079CFH,	07BCFH,	04927H,
+;		8		9		A		B		C		D		E		F
+		07BEFH,	049EFH,	05BEFH,	03AEBH,	0624EH,	03B6BH,	073CFH,	013CFH
 
 ;---Constants------
-MD_Commands EQU 6000H
-MD_Command_ClearScreen EQU MD_Commands+02H
-MD_Command_AutoMov EQU MD_Commands+10H
-MD_Command_RemoveWarning EQU MD_Commands+40H
-MD_Command_SetX EQU MD_Commands+0CH
-MD_Command_SetY EQU MD_Commands+0AH
-MD_Command_Draw EQU MD_Commands+12H
-MD_Command_SetBackground EQU MD_Commands+42H
-MD_Command_PlayVideoMusic EQU MD_Commands+5AH
-MD_Command_PlayVideoMusicLoop EQU MD_Commands+5CH
-MD_Command_PauseVideoMusic EQU MD_Commands+5EH
-MD_Command_ContinueVideoMusic EQU MD_Commands+60H
-MD_Command_StopsVideoMusic EQU MD_Commands+66H
+MD_Commands EQU						6000H
+MD_Command_ClearScreen EQU			MD_Commands+02H
+MD_Command_AutoMov EQU				MD_Commands+10H
+MD_Command_RemoveWarning EQU		MD_Commands+40H
+MD_Command_SetX EQU					MD_Commands+0CH
+MD_Command_SetY EQU					MD_Commands+0AH
+MD_Command_Draw EQU					MD_Commands+12H
+MD_Command_SetBackground EQU		MD_Commands+42H
+MD_Command_PlayVideoMusic EQU		MD_Commands+5AH
+MD_Command_PlayVideoMusicLoop EQU	MD_Commands+5CH
+MD_Command_PauseVideoMusic EQU		MD_Commands+5EH
+MD_Command_ContinueVideoMusic EQU	MD_Commands+60H
+MD_Command_StopsVideoMusic EQU		MD_Commands+66H
 
 
-_MD_Memmory EQU 8000H
-_MD_Width EQU 32
-_MD_Height EQU 64
+_MD_Memmory EQU	8000H
+_MD_Width EQU 	32
+_MD_Height EQU	64
 
 ;Input nothing
 ;Output nothing
@@ -86,7 +88,6 @@ MD_ClearScreen:
 ;[WARNING:TALK TO TEACHER ABOUT THE N-PIXEL THING]
 ;Best to not use this
 MD_ColorBack:
-
 	PUSH R1
 	PUSH R2
 
@@ -101,8 +102,6 @@ _MD_ColorBack_loop:
 
 	POP R2
 	POP R1
-	
-
 	RET
 
 
@@ -121,12 +120,11 @@ MD_DrawPixel:
 MD_SetBack:
 	MOV [MD_Command_SetBackground],R0 ;Set Background with the adress of MediaCenter plus the command to set background
 	RET
-	
+
 ;Input R0(X) R1(Y) R2(width) R3(height) R4(Color)
 ;Output nothing
 ;Draws a rectagle
 MD_DrawRect:
-
 	PUSH R1 
 	PUSH R3 
 	PUSH R5 
@@ -147,17 +145,15 @@ _MD_DrawRect_width:
 	CMP R3,0
 	JNZ _MD_DrawRect_height
 
-	POP R5 
-	POP R3 
-	POP R1 
-
+	POP R5
+	POP R3
+	POP R1
 	RET
 
 ;Input R0(X) R1(Y) R2(Sprite Adress) R3(Sprite Pallet)
 ;Output nothing
 ;Draws A Sprite From and Adress
 MD_DrawSprite:
-
 	PUSH R1
 	PUSH R2
 	PUSH R4
@@ -235,14 +231,12 @@ _MD_DrawSprite_widthloop:
 	POP R4
 	POP R2
 	POP R1
-
 	RET
 
 ;Input R0(X) R1(Y) R2(Color) R3(number)
 ;Output nothing
 ;Draws A Numberic Glyph From and Adress
 MD_DrawHex:
-
 	PUSH R1
 	PUSH R3
 	PUSH R4
@@ -281,7 +275,6 @@ _MD_DrawHex_Move:
 	POP R4
 	POP R3
 	POP R1
-
 	RET
 
 ;Input R0(ID)
@@ -298,8 +291,6 @@ MD_Play:
 MD_Loop:
 	MOV [MD_Command_PlayVideoMusicLoop],R0
 	RET
-
-
 
 
 ;Input R0(ID)

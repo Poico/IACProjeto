@@ -5,6 +5,11 @@
 ; * Alunos: Rodrigo Gomes (106644) Diogo Diniz (106196) Tomás Antunes (106265)
 ; *********************************************************************************
 
+; stack
+	PLACE 3800H
+	STACK 0400H
+stack_top:
+
 	PLACE 0
 entry:
 	; stack setup
@@ -90,12 +95,30 @@ WORD 00007H,00020H
 ,01111H,01111H,03330H,00003H,03300H,01033H,01111H
 ,01111H,01111H,00000H,00000H,00000H,01000H,01111H
 _MD_Glyphs:
-;		0	  1	  	2	  	3	  	4	  	5	  	6	  7	  	8	  9	  	A	  	B	  	C	  	D	  E	  	F
-WORD 07B6FH,02492H,073E7H,079E7H,049EDH,079CFH,07BCFH,04927H,07BEFH,049EFH,05BEFH,03AEBH,0624EH,03B6BH,073CFH,013CFH
-MD_Commands EQU 6000H
-_MD_Memmory EQU 8000H
-_MD_Width EQU 32
-_MD_Height EQU 64
+;		0		1		2		3		4		5		6		7
+WORD	07B6FH,	02492H,	073E7H,	079E7H,	049EDH,	079CFH,	07BCFH,	04927H,
+;		8		9		A		B		C		D		E		F
+		07BEFH,	049EFH,	05BEFH,	03AEBH,	0624EH,	03B6BH,	073CFH,	013CFH
+
+;---Constants------
+MD_Commands EQU						6000H
+MD_Command_ClearScreen EQU			MD_Commands+02H
+MD_Command_AutoMov EQU				MD_Commands+10H
+MD_Command_RemoveWarning EQU		MD_Commands+40H
+MD_Command_SetX EQU					MD_Commands+0CH
+MD_Command_SetY EQU					MD_Commands+0AH
+MD_Command_Draw EQU					MD_Commands+12H
+MD_Command_SetBackground EQU		MD_Commands+42H
+MD_Command_PlayVideoMusic EQU		MD_Commands+5AH
+MD_Command_PlayVideoMusicLoop EQU	MD_Commands+5CH
+MD_Command_PauseVideoMusic EQU		MD_Commands+5EH
+MD_Command_ContinueVideoMusic EQU	MD_Commands+60H
+MD_Command_StopsVideoMusic EQU		MD_Commands+66H
+
+
+_MD_Memmory EQU	8000H
+_MD_Width EQU 	32
+_MD_Height EQU	64
 
 ;Input nothing
 ;Output nothing
@@ -103,9 +126,9 @@ _MD_Height EQU 64
 MD_InitMedia:
 	PUSH R0
 	MOV R0,1
-	MOV [MD_Commands + 10H],R0;AutoMov enabled some draw call need this on
-	MOV [MD_Commands + 02H],R0;clear screen(s)
-	MOV [MD_Commands + 40H],R0;remove warning
+	MOV [MD_Command_AutoMov],R0;AutoMov enabled some draw call need this on
+	MOV [MD_Command_ClearScreen],R0;clear screen(s)
+	MOV [MD_Command_RemoveWarning],R0;remove warning
 	POP R0
 	RET
 
@@ -113,7 +136,7 @@ MD_InitMedia:
 ;Output nothing
 ;Clear screen
 MD_ClearScreen:
-	MOV [MD_Commands + 02H],R0 ;clear screen(s)
+	MOV [MD_Command_ClearScreen],R0 ;clear screen(s)
 	RET
 
 ;Input R0(Color)
@@ -122,7 +145,6 @@ MD_ClearScreen:
 ;[WARNING:TALK TO TEACHER ABOUT THE N-PIXEL THING]
 ;Best to not use this
 MD_ColorBack:
-
 	PUSH R1
 	PUSH R2
 
@@ -130,14 +152,13 @@ MD_ColorBack:
 	MOV R2,_MD_Height
 	MUL R1,R2 ;Get Total Pixel Count
 _MD_ColorBack_loop:
-	MOV [MD_Commands + 12H],R0 ;Draw And Move
+	MOV [MD_Command_Draw],R0 ;Draw And Move
 	SUB R0,1
 	CMP R0,0
 	JNZ _MD_ColorBack_loop
 
 	POP R2
 	POP R1
-
 	RET
 
 
@@ -145,34 +166,33 @@ _MD_ColorBack_loop:
 ;Output nothing
 ;Draws a pixel
 MD_DrawPixel:
-	MOV [MD_Commands+0CH],R0;Set X
-	MOV [MD_Commands+0AH],R1;Set Y
-	MOV [MD_Commands+12H],R2;Draw
+	MOV [MD_Command_SetX],R0;Set X
+	MOV [MD_Command_SetY],R1;Set Y
+	MOV [MD_Command_Draw],R2;Draw
 	RET
 
 ;Input R0(ID)
 ;Output nothing
 ;Sets Background
 MD_SetBack:
-	MOV [MD_Commands+42H],R0 ;Set Background with the adress of MediaCenter plus the command to set background
+	MOV [MD_Command_SetBackground],R0 ;Set Background with the adress of MediaCenter plus the command to set background
 	RET
-	
+
 ;Input R0(X) R1(Y) R2(width) R3(height) R4(Color)
 ;Output nothing
 ;Draws a rectagle
 MD_DrawRect:
-
 	PUSH R1 
 	PUSH R3 
 	PUSH R5 
 
 _MD_DrawRect_height:
-	MOV [MD_Commands+0CH],R0;Set X
-	MOV [MD_Commands+0AH],R1;Set Y
+	MOV [MD_Command_SetX],R0;Set X
+	MOV [MD_Command_SetY],R1;Set Y
 	MOV R5,R2
 
 _MD_DrawRect_width:
-	MOV [MD_Commands+12H],R4;Draw
+	MOV [MD_Command_Draw],R4;Draw
 	SUB R5,1
 	CMP R5,0
 	JNZ _MD_DrawRect_width
@@ -185,14 +205,12 @@ _MD_DrawRect_width:
 	POP R5
 	POP R3
 	POP R1
-
 	RET
 
 ;Input R0(X) R1(Y) R2(Sprite Adress) R3(Sprite Pallet)
 ;Output nothing
 ;Draws A Sprite From and Adress
 MD_DrawSprite:
-
 	PUSH R1
 	PUSH R2
 	PUSH R4
@@ -209,8 +227,8 @@ MD_DrawSprite:
 	ADD R2,4;set to the sheet area
 
 _MD_DrawSpriteH_HeightLoop:
-	MOV [MD_Commands+0CH],R0;Set X
-	MOV [MD_Commands+0AH],R1;Set Y
+	MOV [MD_Command_SetX],R0;Set X
+	MOV [MD_Command_SetY],R1;Set Y
 	MOV R10,R4
 
 _MD_DrawSprite_widthloop:
@@ -222,7 +240,7 @@ _MD_DrawSprite_widthloop:
 	AND R7,R8
 	SHL R7,1
 	MOV R9,[R7+R3]
-	MOV [MD_Commands+12H],R9;Draw
+	MOV [MD_Command_Draw],R9;Draw
 	SHR R6,4;
 
 	;2 pixel
@@ -231,7 +249,7 @@ _MD_DrawSprite_widthloop:
 	AND R7,R8
 	SHL R7,1
 	MOV R9,[R7+R3]
-	MOV [MD_Commands+12H],R9;Draw
+	MOV [MD_Command_Draw],R9;Draw
 	SHR R6,4;
 
 	;3 pixel
@@ -240,7 +258,7 @@ _MD_DrawSprite_widthloop:
 	AND R7,R8
 	SHL R7,1
 	MOV R9,[R7+R3]
-	MOV [MD_Commands+12H],R9;Draw
+	MOV [MD_Command_Draw],R9;Draw
 	SHR R6,4;
 
 	;4 pixel
@@ -249,7 +267,7 @@ _MD_DrawSprite_widthloop:
 	AND R7,R8
 	SHL R7,1
 	MOV R9,[R7+R3]
-	MOV [MD_Commands+12H],R9;Draw
+	MOV [MD_Command_Draw],R9;Draw
 
 	ADD R2,2
 	SUB R10,1
@@ -270,14 +288,12 @@ _MD_DrawSprite_widthloop:
 	POP R4
 	POP R2
 	POP R1
-
 	RET
 
 ;Input R0(X) R1(Y) R2(Color) R3(number)
 ;Output nothing
 ;Draws A Numberic Glyph From and Adress
 MD_DrawHex:
-
 	PUSH R1
 	PUSH R3
 	PUSH R4
@@ -291,16 +307,16 @@ MD_DrawHex:
 	MOV R6,0000H
 	MOV R8,5
 _MD_DrawHex_HeightLoop:
-	MOV [MD_Commands+0CH],R0;Set X
-	MOV [MD_Commands+0AH],R1;Set Y
+	MOV [MD_Command_SetX],R0;Set X
+	MOV [MD_Command_SetY],R1;Set Y
 	MOV R7,3
 _MD_DrawHex_WidthLoop:
 	SHR R4,1
 	JNC _MD_DrawHex_NoCarry
-	MOV [MD_Commands+12H],R2;Draw Color
+	MOV [MD_Command_Draw],R2;Draw Color
 	JMP _MD_DrawHex_Move
 _MD_DrawHex_NoCarry:
-	MOV [MD_Commands+12H],R6;Draw nothing
+	MOV [MD_Command_Draw],R6;Draw nothing
 _MD_DrawHex_Move:
 	SUB R7,1
 	CMP R7,0
@@ -316,14 +332,13 @@ _MD_DrawHex_Move:
 	POP R4
 	POP R3
 	POP R1
-
 	RET
 
 ;Input R0(ID)
 ;Output nothing
 ;Plays a video/sound
 MD_Play:
-	MOV [MD_Commands+5AH],R0
+	MOV [MD_Command_PlayVideoMusic],R0
 	RET
 
 
@@ -331,7 +346,7 @@ MD_Play:
 ;Output nothing
 ;Plays a video/sound on loop
 MD_Loop:
-	MOV [MD_Commands+5CH],R0
+	MOV [MD_Command_PlayVideoMusicLoop],R0
 	RET
 
 
@@ -339,21 +354,21 @@ MD_Loop:
 ;Output nothing
 ;pauses a video/sound
 MD_Pause:
-	MOV [MD_Commands+5EH],R0
+	MOV [MD_Command_PauseVideoMusic],R0
 	RET
 
 ;Input R0(ID)
 ;Output nothing
 ;unpauses a video/sound
 MD_Unpause:
-	MOV [MD_Commands+60H],R0
+	MOV [MD_Command_ContinueVideoMusic],R0
 	RET
 
 ;Input R0(ID)
 ;Output nothing
 ;Stops a video/sound
 MD_Stop:
-	MOV [MD_Commands+66H],R0
+	MOV [MD_Command_StopsVideoMusic],R0
 	RET
 ; BCD.asm - Binary Coded Decimal library
 
@@ -477,6 +492,7 @@ _SB_DrawSB_drawPartial:
 	SUB R1, 1
 	MOV R2, R6
 	MOV R3, 1
+	;Color already set
 	;Input R0(X) R1(Y) R2(width) R3(height) R4(Color)
 	CALL MD_DrawRect
 	
@@ -972,53 +988,55 @@ RNG_STEP:
 
 	RET
 
-_TL_TetraColors: WORD 0000H,0FFF0H	,0FF00H	,0F5F8H	   ,0F0FFH	,0F00FH	,0FF80H	   ,0F70FH
-_TL_Tetras: WORD	  0000H,_TL_Square,_TL_Z_Horz,_TL_invZ_Horz,_TL_I_Vert,_TL_L_ANG0,_TL_invL_ANG0,_TL_T_ANG0
-				;Master Block
-				;NEXT SHAPE BL1X BL1Y BL2X BL2Y BL3X BL3Y BL4X BL4Y
-_TL_Square: WORD _TL_Square,0000,0000,0001,0000,0001,0001,0000,0001
+_TL_BoardArea EQU	200
 
-_TL_Z_Horz: WORD _TL_Z_Vert,0001,0001,0000,0000,0001,0000,0002,0001
-_TL_Z_Vert: WORD _TL_Z_Horz,0000,0001,0001,0000,0001,0001,0000,0002
+_TL_TetraColors: WORD 0000H,	0FFF0H,		0FF00H,		0F5F8H,			0F0FFH,		0F00FH,		0FF80H,			0F70FH
+_TL_Tetras: WORD	  0000H,	_TL_Square,	_TL_Z_Horz,	_TL_invZ_Horz,	_TL_I_Vert,	_TL_L_ANG0,	_TL_invL_ANG0,	_TL_T_ANG0
+					;Master Block
+					;NEXT SHAPE 	BL1X BL1Y BL2X BL2Y BL3X BL3Y BL4X BL4Y
+_TL_Square: WORD 	_TL_Square,		0000,0000,0001,0000,0001,0001,0000,0001
+			
+_TL_Z_Horz: WORD 	_TL_Z_Vert,		0001,0001,0000,0000,0001,0000,0002,0001
+_TL_Z_Vert: WORD 	_TL_Z_Horz,		0000,0001,0001,0000,0001,0001,0000,0002
 
-_TL_invZ_Horz: WORD _TL_invZ_Vert,0001,0001,0000,0001,0001,0000,0002,0000
-_TL_invZ_Vert: WORD _TL_invZ_Horz,0000,0001,0000,0000,0001,0001,0001,0002
+_TL_invZ_Horz: WORD _TL_invZ_Vert,	0001,0001,0000,0001,0001,0000,0002,0000
+_TL_invZ_Vert: WORD _TL_invZ_Horz,	0000,0001,0000,0000,0001,0001,0001,0002
 
-_TL_I_Horz: WORD _TL_I_Vert,0001,0000,0000,0000,0002,0000,0003,0000
-_TL_I_Vert: WORD _TL_I_Horz,0000,0001,0000,0000,0000,0002,0000,0003
+_TL_I_Horz: WORD 	_TL_I_Vert,		0001,0000,0000,0000,0002,0000,0003,0000
+_TL_I_Vert: WORD 	_TL_I_Horz,		0000,0001,0000,0000,0000,0002,0000,0003
+		
+_TL_L_ANG0: WORD 	_TL_L_ANG1,		0000,0001,0000,0000,0000,0002,0001,0002
+_TL_L_ANG1: WORD 	_TL_L_ANG2,		0001,0001,0000,0001,0002,0001,0002,0000
+_TL_L_ANG2: WORD 	_TL_L_ANG3,		0001,0001,0000,0000,0001,0000,0001,0002
+_TL_L_ANG3: WORD 	_TL_L_ANG0,		0001,0000,0000,0000,0000,0001,0002,0000
 
-_TL_L_ANG0 : WORD _TL_L_ANG1,0000,0001,0000,0000,0000,0002,0001,0002
-_TL_L_ANG1 : WORD _TL_L_ANG2,0001,0001,0000,0001,0002,0001,0002,0000
-_TL_L_ANG2 : WORD _TL_L_ANG3,0001,0001,0000,0000,0001,0000,0001,0002
-_TL_L_ANG3 : WORD _TL_L_ANG0,0001,0000,0000,0000,0000,0001,0002,0000
+_TL_invL_ANG0: WORD _TL_invL_ANG1,	0001,0001,0001,0000,0001,0002,0000,0002
+_TL_invL_ANG1: WORD _TL_invL_ANG2,	0001,0000,0000,0000,0002,0000,0002,0001
+_TL_invL_ANG2: WORD _TL_invL_ANG3,	0000,0001,0001,0000,0000,0000,0000,0002
+_TL_invL_ANG3: WORD _TL_invL_ANG0,	0001,0001,0000,0001,0000,0000,0002,0001
 
-_TL_invL_ANG0 : WORD _TL_invL_ANG1,0001,0001,0001,0000,0001,0002,0000,0002
-_TL_invL_ANG1 : WORD _TL_invL_ANG2,0001,0000,0000,0000,0002,0000,0002,0001
-_TL_invL_ANG2 : WORD _TL_invL_ANG3,0000,0001,0001,0000,0000,0000,0000,0002
-_TL_invL_ANG3 : WORD _TL_invL_ANG0,0001,0001,0000,0001,0000,0000,0002,0001
-
-_TL_T_ANG0 : WORD _TL_T_ANG1,0001,0001,0001,0000,0002,0001,0001,0002
-_TL_T_ANG1 : WORD _TL_T_ANG2,0001,0001,0002,0001,0001,0002,0000,0001
-_TL_T_ANG2 : WORD _TL_T_ANG3,0001,0001,0001,0002,0000,0001,0001,0000
-_TL_T_ANG3 : WORD _TL_T_ANG0,0001,0001,0000,0001,0001,0000,0002,0001
+_TL_T_ANG0: WORD 	_TL_T_ANG1,		0001,0001,0001,0000,0002,0001,0001,0002
+_TL_T_ANG1: WORD 	_TL_T_ANG2,		0001,0001,0002,0001,0001,0002,0000,0001
+_TL_T_ANG2: WORD 	_TL_T_ANG3,		0001,0001,0001,0002,0000,0001,0001,0000
+_TL_T_ANG3: WORD 	_TL_T_ANG0,		0001,0001,0000,0001,0001,0000,0002,0001
 
 _TL_MovingTetra:
-	WORD 
-	;ID   next
-	 0000,0000
-	,0000,0000 ;block 1
-	,0000,0000 ;block 2
-	,0000,0000 ;block 3
-	,0000,0000 ;block 4
+	WORD
+	;ID		next
+	0000,	0000,
+	0000,	0000, ;block 1
+	0000,	0000, ;block 2
+	0000,	0000, ;block 3
+	0000,	0000 ;block 4
 
 _TL_NextTetra:
 	WORD 0000
 
 _TL_Board:
-	TABLE 200
+	TABLE _TL_BoardArea
 
 ;Input nothing
-;OutPut nothing
+;Output nothing
 ;Clears The Board
 TL_ResetBoard:
 	PUSH R0
@@ -1026,8 +1044,8 @@ TL_ResetBoard:
 	PUSH R2
 
 	MOV R0,_TL_Board
-	MOV R1,400
-	MOV R2,0
+	MOV R1,_TL_BoardArea * 2 	;Table size in bytes
+	MOV R2,0					;Empty state
 
 _TL_ResetBoard_loop:
 	SUB R1,2
@@ -1042,10 +1060,9 @@ _TL_ResetBoard_loop:
 	RET
 
 ;Input R0(ID)
-;OutPut nothing
+;Output nothing
 ;Makes a Tetra in memmory with the id
 TL_MakeTetra:
-
 	PUSH R0
 	PUSH R1
 	PUSH R2
@@ -1081,14 +1098,12 @@ _TL_MakeTetra_loop:
 	POP R2
 	POP R1
 	POP R0
-
 	RET
 
 ;Inputs nothing
 ;Output nothing
 ;"Rotates" the tetra to the next shape if it can
 TL_RotateTetra:
-
 	PUSH R0
 	PUSH R1
 	PUSH R2
@@ -1115,8 +1130,9 @@ TL_RotateTetra:
 	MOV R4,4
 
 _TL_RotateTetra_testloop:
-
 	PUSH R4
+	PUSH R0   ;Verify This
+	PUSH R2
 
 	MOV R3,[R1];get new X
 	ADD R3,R5
@@ -1126,16 +1142,15 @@ _TL_RotateTetra_testloop:
 	ADD R4,R6
 	ADD R1,2
 
-	PUSH R0
 	PUSH R1
-	PUSH R2
+
 
 	MOV R0,R3
 	MOV R1,R4
 	CALL TL_TryBlock
 
-	POP R2
 	POP R1
+	POP R2
 	POP R0
 
 	POP R4
@@ -1184,14 +1199,12 @@ _TL_RotateTetra_Cancel:
 	POP R2
 	POP R1
 	POP R0
-
 	RET
 
 ;Input nothing
-;OutPut nothing
+;Output nothing
 ;Slams Down The Tetra
 TL_SlamTetra:
-
 	PUSH R0
 	PUSH R1
 	PUSH R2
@@ -1206,14 +1219,12 @@ TL_SlamTetra_loop:
 	POP R2
 	POP R1
 	POP R0
-
 	RET
 
 ;Input R0(X) R1(Y)
-;OutPut R2(Succsess or not)
+;Output R2(Succsess or not)
 ;Moves the tetra by X and Y if it can
 TL_MoveTetra:
-
 	PUSH R3
 	PUSH R4
 	PUSH R5
@@ -1275,7 +1286,6 @@ _TL_MoveTetra_loop:
 	POP R3
 
 	MOV R2,1
-
 	RET
 
 _TL_MoveTetra_Cancel:
@@ -1288,7 +1298,7 @@ _TL_MoveTetra_Cancel:
 	RET
 
 ;Input R0(X) R1(Y)
-;OutPut R2(Can/Can't)
+;Output R2(Can/Can't)
 ;
 TL_TryBlock:
 	
@@ -1389,7 +1399,7 @@ _TL_DrawMovingTetra_loop:
 	RET
 
 ;Input nothing
-;OutPut nothing
+;Output nothing
 ;
 TL_FinalizeTetra:
 
@@ -1428,14 +1438,12 @@ _TL_FinalizeTetra_loop:
 	POP R2
 	POP R1
 	POP R0
-
 	RET
 
 ;Input Nothing
 ;Output R0(lines cleard)
 ;Finds Clears Moves and returns the cleard lines
 TL_BoardCheck:
-
 	PUSH R1
 	PUSH R2
 	PUSH R3
@@ -1464,14 +1472,12 @@ _TL_BoardCheck_skip:
 	POP R3
 	POP R2
 	POP R1
-
 	RET
 
 ;Input R0(index)
 ;Output R1(did something)
 ;Finds Clears Moves and returns the cleard line
 TL_LineCheck:
-
 	PUSH R0
 	PUSH R2
 
@@ -1506,14 +1512,12 @@ _TL_LineCheck_fail:
 	POP R0
 
 	MOV R1,0
-
 	RET
 
 ;Input R0(index)
 ;Output nothing
 ;Makes Lines Above "fall down"
 TL_LineFall:
-
 	PUSH R0
 	PUSH R1
 	PUSH R2
@@ -1550,7 +1554,6 @@ _TL_LineFall_loop_finalize:
 	POP R2
 	POP R1
 	POP R0
-
 	RET
 
 TL_DrawBoard:
@@ -1576,16 +1579,15 @@ TL_DrawBoard:
 _TL_DrawBoard_height:
 	MOV R2,10
 
-
-	MOV [MD_Commands+0CH],R6;Set X
-	MOV [MD_Commands+0AH],R4;Set Y
+	MOV [MD_Command_SetX],R6;Set X
+	MOV [MD_Command_SetY],R4;Set Y
 	MOV R8,R0
 _TL_DrawBoard_width:
 	MOV R5,[R0]
 	SHL R5,1
 	MOV R5,[R1+R5]
-	MOV [MD_Commands+12H],R5;Draw
-	MOV [MD_Commands+12H],R5;Draw
+	MOV [MD_Command_Draw],R5;Draw
+	MOV [MD_Command_Draw],R5;Draw
 	ADD R0,2
 
 ;end width
@@ -1618,7 +1620,6 @@ _TL_DrawBoard_noskip:
 	POP R2
 	POP R1
 	POP R0
-
 	RET
 
 ;Input nothing
@@ -1661,7 +1662,7 @@ TL_MoveTetraRight:
 	RET
 
 ;Input nothing
-;OutPut nothing
+;Output nothing
 ;Inializes the tetralogic stuff
 TL_InitTetraLogic:
 
@@ -1687,11 +1688,10 @@ TL_InitTetraLogic:
 	POP R2
 	POP R1
 	POP R0
-
 	RET
 
 ;Input nothing
-;OutPut nothing
+;Output nothing
 ;Makes the new moving tetra from the next and makes a new next
 TL_MakeNextTetra:
 
@@ -1718,7 +1718,6 @@ TL_MakeNextTetra:
 	POP R2
 	POP R1
 	POP R0
-
 	RET
 
 ;Input nothing
@@ -1747,7 +1746,6 @@ _TL_TetraLogicGrav_Nocoll:
 	POP R2
 	POP R1
 	POP R0
-
 	RET
 
 ;Input nothing
@@ -1837,10 +1835,4 @@ _TL_DrawNextTertra_loop:
 	POP R2
 	POP R1
 	POP R0
-
 	RET
-
-; stack
-	PLACE 3800H
-	STACK 0400H
-stack_top:

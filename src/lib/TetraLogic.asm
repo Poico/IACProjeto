@@ -4,57 +4,55 @@
 #include:MediaDrive.asm
 #include:RNG.asm
 
-MD_Command_SetX EQU MD_Commands+0CH
-MD_Command_SetY EQU MD_Commands+0AH
-MD_Command_Draw EQU MD_Commands+12H
+_TL_BoardArea EQU	200
 
-_TL_TetraColors: WORD 0000H,0FFF0H	,0FF00H	,0F5F8H	   ,0F0FFH	,0F00FH	,0FF80H	   ,0F70FH
-_TL_Tetras: WORD	  0000H,_TL_Square,_TL_Z_Horz,_TL_invZ_Horz,_TL_I_Vert,_TL_L_ANG0,_TL_invL_ANG0,_TL_T_ANG0
-				;Master Block
-				;NEXT SHAPE BL1X BL1Y BL2X BL2Y BL3X BL3Y BL4X BL4Y
-_TL_Square: WORD _TL_Square,0000,0000,0001,0000,0001,0001,0000,0001
+_TL_TetraColors: WORD 0000H,	0FFF0H,		0FF00H,		0F5F8H,			0F0FFH,		0F00FH,		0FF80H,			0F70FH
+_TL_Tetras: WORD	  0000H,	_TL_Square,	_TL_Z_Horz,	_TL_invZ_Horz,	_TL_I_Vert,	_TL_L_ANG0,	_TL_invL_ANG0,	_TL_T_ANG0
+					;Master Block
+					;NEXT SHAPE 	BL1X BL1Y BL2X BL2Y BL3X BL3Y BL4X BL4Y
+_TL_Square: WORD 	_TL_Square,		0000,0000,0001,0000,0001,0001,0000,0001
+			
+_TL_Z_Horz: WORD 	_TL_Z_Vert,		0001,0001,0000,0000,0001,0000,0002,0001
+_TL_Z_Vert: WORD 	_TL_Z_Horz,		0000,0001,0001,0000,0001,0001,0000,0002
 
-_TL_Z_Horz: WORD _TL_Z_Vert,0001,0001,0000,0000,0001,0000,0002,0001
-_TL_Z_Vert: WORD _TL_Z_Horz,0000,0001,0001,0000,0001,0001,0000,0002
+_TL_invZ_Horz: WORD _TL_invZ_Vert,	0001,0001,0000,0001,0001,0000,0002,0000
+_TL_invZ_Vert: WORD _TL_invZ_Horz,	0000,0001,0000,0000,0001,0001,0001,0002
 
-_TL_invZ_Horz: WORD _TL_invZ_Vert,0001,0001,0000,0001,0001,0000,0002,0000
-_TL_invZ_Vert: WORD _TL_invZ_Horz,0000,0001,0000,0000,0001,0001,0001,0002
+_TL_I_Horz: WORD 	_TL_I_Vert,		0001,0000,0000,0000,0002,0000,0003,0000
+_TL_I_Vert: WORD 	_TL_I_Horz,		0000,0001,0000,0000,0000,0002,0000,0003
+		
+_TL_L_ANG0: WORD 	_TL_L_ANG1,		0000,0001,0000,0000,0000,0002,0001,0002
+_TL_L_ANG1: WORD 	_TL_L_ANG2,		0001,0001,0000,0001,0002,0001,0002,0000
+_TL_L_ANG2: WORD 	_TL_L_ANG3,		0001,0001,0000,0000,0001,0000,0001,0002
+_TL_L_ANG3: WORD 	_TL_L_ANG0,		0001,0000,0000,0000,0000,0001,0002,0000
 
-_TL_I_Horz: WORD _TL_I_Vert,0001,0000,0000,0000,0002,0000,0003,0000
-_TL_I_Vert: WORD _TL_I_Horz,0000,0001,0000,0000,0000,0002,0000,0003
+_TL_invL_ANG0: WORD _TL_invL_ANG1,	0001,0001,0001,0000,0001,0002,0000,0002
+_TL_invL_ANG1: WORD _TL_invL_ANG2,	0001,0000,0000,0000,0002,0000,0002,0001
+_TL_invL_ANG2: WORD _TL_invL_ANG3,	0000,0001,0001,0000,0000,0000,0000,0002
+_TL_invL_ANG3: WORD _TL_invL_ANG0,	0001,0001,0000,0001,0000,0000,0002,0001
 
-_TL_L_ANG0 : WORD _TL_L_ANG1,0000,0001,0000,0000,0000,0002,0001,0002
-_TL_L_ANG1 : WORD _TL_L_ANG2,0001,0001,0000,0001,0002,0001,0002,0000
-_TL_L_ANG2 : WORD _TL_L_ANG3,0001,0001,0000,0000,0001,0000,0001,0002
-_TL_L_ANG3 : WORD _TL_L_ANG0,0001,0000,0000,0000,0000,0001,0002,0000
-
-_TL_invL_ANG0 : WORD _TL_invL_ANG1,0001,0001,0001,0000,0001,0002,0000,0002
-_TL_invL_ANG1 : WORD _TL_invL_ANG2,0001,0000,0000,0000,0002,0000,0002,0001
-_TL_invL_ANG2 : WORD _TL_invL_ANG3,0000,0001,0001,0000,0000,0000,0000,0002
-_TL_invL_ANG3 : WORD _TL_invL_ANG0,0001,0001,0000,0001,0000,0000,0002,0001
-
-_TL_T_ANG0 : WORD _TL_T_ANG1,0001,0001,0001,0000,0002,0001,0001,0002
-_TL_T_ANG1 : WORD _TL_T_ANG2,0001,0001,0002,0001,0001,0002,0000,0001
-_TL_T_ANG2 : WORD _TL_T_ANG3,0001,0001,0001,0002,0000,0001,0001,0000
-_TL_T_ANG3 : WORD _TL_T_ANG0,0001,0001,0000,0001,0001,0000,0002,0001
+_TL_T_ANG0: WORD 	_TL_T_ANG1,		0001,0001,0001,0000,0002,0001,0001,0002
+_TL_T_ANG1: WORD 	_TL_T_ANG2,		0001,0001,0002,0001,0001,0002,0000,0001
+_TL_T_ANG2: WORD 	_TL_T_ANG3,		0001,0001,0001,0002,0000,0001,0001,0000
+_TL_T_ANG3: WORD 	_TL_T_ANG0,		0001,0001,0000,0001,0001,0000,0002,0001
 
 _TL_MovingTetra:
-	WORD 
-	;ID   next
-	 0000,0000
-	,0000,0000 ;block 1
-	,0000,0000 ;block 2
-	,0000,0000 ;block 3
-	,0000,0000 ;block 4
+	WORD
+	;ID		next
+	0000,	0000,
+	0000,	0000, ;block 1
+	0000,	0000, ;block 2
+	0000,	0000, ;block 3
+	0000,	0000 ;block 4
 
 _TL_NextTetra:
 	WORD 0000
 
 _TL_Board:
-	TABLE 200
+	TABLE _TL_BoardArea
 
 ;Input nothing
-;OutPut nothing
+;Output nothing
 ;Clears The Board
 TL_ResetBoard:
 	PUSH R0
@@ -62,8 +60,8 @@ TL_ResetBoard:
 	PUSH R2
 
 	MOV R0,_TL_Board
-	MOV R1,400	;Warning Comment
-	MOV R2,0	;Warning Comment	
+	MOV R1,_TL_BoardArea * 2 	;Table size in bytes
+	MOV R2,0					;Empty state
 
 _TL_ResetBoard_loop:
 	SUB R1,2
@@ -78,10 +76,9 @@ _TL_ResetBoard_loop:
 	RET
 
 ;Input R0(ID)
-;OutPut nothing
+;Output nothing
 ;Makes a Tetra in memmory with the id
 TL_MakeTetra:
-
 	PUSH R0
 	PUSH R1
 	PUSH R2
@@ -117,14 +114,12 @@ _TL_MakeTetra_loop:
 	POP R2
 	POP R1
 	POP R0
-
 	RET
 
 ;Inputs nothing
 ;Output nothing
 ;"Rotates" the tetra to the next shape if it can
 TL_RotateTetra:
-
 	PUSH R0
 	PUSH R1
 	PUSH R2
@@ -151,11 +146,10 @@ TL_RotateTetra:
 	MOV R4,4
 
 _TL_RotateTetra_testloop:
-
 	PUSH R4
 	PUSH R0   ;Verify This
 	PUSH R2
-	
+
 	MOV R3,[R1];get new X
 	ADD R3,R5
 	ADD R1,2
@@ -221,14 +215,12 @@ _TL_RotateTetra_Cancel:
 	POP R2
 	POP R1
 	POP R0
-
 	RET
 
 ;Input nothing
-;OutPut nothing
+;Output nothing
 ;Slams Down The Tetra
 TL_SlamTetra:
-
 	PUSH R0
 	PUSH R1
 	PUSH R2
@@ -243,14 +235,12 @@ TL_SlamTetra_loop:
 	POP R2
 	POP R1
 	POP R0
-
 	RET
 
 ;Input R0(X) R1(Y)
-;OutPut R2(Succsess or not)
+;Output R2(Succsess or not)
 ;Moves the tetra by X and Y if it can
 TL_MoveTetra:
-
 	PUSH R3
 	PUSH R4
 	PUSH R5
@@ -312,7 +302,6 @@ _TL_MoveTetra_loop:
 	POP R3
 
 	MOV R2,1
-
 	RET
 
 _TL_MoveTetra_Cancel:
@@ -325,7 +314,7 @@ _TL_MoveTetra_Cancel:
 	RET
 
 ;Input R0(X) R1(Y)
-;OutPut R2(Can/Can't)
+;Output R2(Can/Can't)
 ;
 TL_TryBlock:
 	
@@ -426,7 +415,7 @@ _TL_DrawMovingTetra_loop:
 	RET
 
 ;Input nothing
-;OutPut nothing
+;Output nothing
 ;
 TL_FinalizeTetra:
 
@@ -465,14 +454,12 @@ _TL_FinalizeTetra_loop:
 	POP R2
 	POP R1
 	POP R0
-
 	RET
 
 ;Input Nothing
 ;Output R0(lines cleard)
 ;Finds Clears Moves and returns the cleard lines
 TL_BoardCheck:
-
 	PUSH R1
 	PUSH R2
 	PUSH R3
@@ -501,14 +488,12 @@ _TL_BoardCheck_skip:
 	POP R3
 	POP R2
 	POP R1
-
 	RET
 
 ;Input R0(index)
 ;Output R1(did something)
 ;Finds Clears Moves and returns the cleard line
 TL_LineCheck:
-
 	PUSH R0
 	PUSH R2
 
@@ -543,14 +528,12 @@ _TL_LineCheck_fail:
 	POP R0
 
 	MOV R1,0
-
 	RET
 
 ;Input R0(index)
 ;Output nothing
 ;Makes Lines Above "fall down"
 TL_LineFall:
-
 	PUSH R0
 	PUSH R1
 	PUSH R2
@@ -587,7 +570,6 @@ _TL_LineFall_loop_finalize:
 	POP R2
 	POP R1
 	POP R0
-
 	RET
 
 TL_DrawBoard:
@@ -612,7 +594,6 @@ TL_DrawBoard:
 
 _TL_DrawBoard_height:
 	MOV R2,10
-
 
 	MOV [MD_Command_SetX],R6;Set X
 	MOV [MD_Command_SetY],R4;Set Y
@@ -655,7 +636,6 @@ _TL_DrawBoard_noskip:
 	POP R2
 	POP R1
 	POP R0
-
 	RET
 
 ;Input nothing
@@ -698,7 +678,7 @@ TL_MoveTetraRight:
 	RET
 
 ;Input nothing
-;OutPut nothing
+;Output nothing
 ;Inializes the tetralogic stuff
 TL_InitTetraLogic:
 
@@ -724,11 +704,10 @@ TL_InitTetraLogic:
 	POP R2
 	POP R1
 	POP R0
-
 	RET
 
 ;Input nothing
-;OutPut nothing
+;Output nothing
 ;Makes the new moving tetra from the next and makes a new next
 TL_MakeNextTetra:
 
@@ -755,7 +734,6 @@ TL_MakeNextTetra:
 	POP R2
 	POP R1
 	POP R0
-
 	RET
 
 ;Input nothing
@@ -784,7 +762,6 @@ _TL_TetraLogicGrav_Nocoll:
 	POP R2
 	POP R1
 	POP R0
-
 	RET
 
 ;Input nothing
@@ -874,5 +851,4 @@ _TL_DrawNextTertra_loop:
 	POP R2
 	POP R1
 	POP R0
-
 	RET
