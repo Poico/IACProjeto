@@ -9,16 +9,19 @@
 #include:ScoreBar.asm
 #include:keyboard.asm
 
+#section:equ
 _IT_CLR_TV_TD 	EQU 0FF3FH	; Bitmask to clear TV & TD
 _IT_SET_INTS 	EQU 01F00H	; Bitmask to set IE and IE# (0-3)
 _IT_CLR_GINTS 	EQU 0F1FFH	; Bitmask to clear game interrupts IE# (0-2)
 _IT_SET_GINTS	EQU 00E00H	; Bitmask to set game interrupts IE# (0-2)
 
+#section:data
 _IT_interrupt_vectors:
-	WORD _IT_INT0, _IT_INT1, _IT_INT2, _IT_INT3,
-		_IT_EXCESSO, _IT_DIV0, _IT_COD_INV, _IT_D_DESALINHADO, _IT_I_DESALINHADO
+	WORD 	_IT_INT0,		_IT_INT1,	_IT_INT2,		_IT_INT3,
+			_IT_EXCESSO,	_IT_DIV0,	_IT_COD_INV,	_IT_D_DESALINHADO,	_IT_I_DESALINHADO
 
 
+#section:text
 ; Sets all interrupt flags as needed and configures the BTE
 IT_SetupInterrupts:
 	PUSH R0

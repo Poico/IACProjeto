@@ -1,7 +1,9 @@
 ; BCD.asm - Binary Coded Decimal library
 
+#section:equ
 _BC_HexOut EQU 0A000H
 
+#section:text
 ;returns value of R0 in R1 as BCD
 BC_ToBCD:
 	PUSH R0

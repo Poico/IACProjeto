@@ -1,3 +1,4 @@
+#section:equ
 ; *********************************************************************************
 ; * Projeto IAC 2022/23 - IST-UL - Versão Intermédia
 ; * Alunos: Rodrigo Gomes (106644) Diogo Diniz (106196) Tomás Antunes (106265)

@@ -1,9 +1,12 @@
 ; RNG.asm
 
+#section:data
 ;this is where the RNG value is stored
 RNG_ADDRESS:
 WORD 01B1EH ;Starting value can be anything
 
+
+#section:text
 ;Input Nothing
 ;Output R0 random value
 ;Steps The RNG value

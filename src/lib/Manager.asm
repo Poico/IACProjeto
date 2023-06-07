@@ -3,12 +3,14 @@
 #include:Interrupts.asm
 #include:MediaDrive.asm
 
+#section:data
 _MAN_TogglePause:
 	WORD 0
 
 _MAN_ToggleMusic:
 	WORD 0
 
+#section:text
 ;Sets Main Menu Background
 MAN_MainMenu:
 

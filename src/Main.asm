@@ -2,11 +2,15 @@
 
 #include:lib/Header.asm
 
+#section:data
 ; stack
 	PLACE 3800H
 	STACK 0400H
 stack_top:
 
+	PLACE 1000H ;Hard bind data to this address (section support)
+
+#section:text
 	PLACE 0
 entry:
 	; stack setup

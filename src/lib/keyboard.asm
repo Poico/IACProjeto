@@ -3,10 +3,11 @@
 ; includes
 #include:Manager.asm
 
+#section:equ
 _KB_KEYO	EQU 0C000H ; write to test
 _KB_KEYI	EQU 0E000H ; read to check
 
-
+#section:data
 _KB_Press_Handles:
 	;		0							1					2		3
 	WORD	MAN_BackgroundMusicClick,	TL_RotateTetra,		0,		0,
@@ -38,6 +39,7 @@ _KB_NextKeyHoldHandle:
 _KB_HandleEnabled:
 	WORD 0
 
+#section:text
 ; Returns first pressed key in R0
 KB_GetKey:
 	PUSH R1 	; keyboard output pointer (write test)

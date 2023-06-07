@@ -1,16 +1,25 @@
 ; ScoreBar.asm - Functions to draw an animated score bar
 
-WIDTH		EQU 32
-HEIGHT		EQU 64
-BWIDTH 		EQU 4
-BHEIGHT		EQU 12
-CORNER_X	EQU 25
-CORNER_Y	EQU 18
-MAX			EQU 100
-
 #include:MediaDrive.asm
 #include:BCD.asm
 
+#section:equ
+_SB_WIDTH		EQU 32
+_SB_HEIGHT		EQU 64
+_SB_BWIDTH 		EQU 4
+_SB_BHEIGHT		EQU 12
+_SB_CORNER_X	EQU 25
+_SB_CORNER_Y	EQU 18
+_SB_MAX			EQU 100
+
+#section:data
+_SB_Color:
+	WORD 0FF00H
+	
+_SB_Score:
+	WORD 0
+
+#section:text
 ; Draws score bar and writes to hex display
 SB_DrawSB:
 	PUSH R0
@@ -28,7 +37,7 @@ SB_DrawSB:
 _SB_DrawSB_writePercent:
 	MOV R10, 100
 	MUL R0, R10			; R0 = (R0 * 100) / MAX (to get percent)
-	MOV R10, MAX
+	MOV R10, _SB_MAX
 	DIV R0, R10
 	
 	CALL BC_ToBCD		; Get percent BCD
@@ -38,37 +47,37 @@ _SB_DrawSB_writePercent:
 _SB_DrawSB_calcFill:
 	MOV R0, [_SB_Score]	; Get score again
 	MOV R5, R0			; fillPixels = score * HEIGHT * WIDTH / MAX
-	MOV R10, BHEIGHT
+	MOV R10, _SB_BHEIGHT
 	MUL R5, R10
-	MOV R10, BWIDTH
+	MOV R10, _SB_BWIDTH
 	MUL R5, R10
-	MOV R10, MAX
+	MOV R10, _SB_MAX
 	DIV R5, R10
 	
 _SB_DrawSB_calcBounds:
 	MOV R6, R5			; maxX = fillPixels % BWIDTH
-	MOV R10, BWIDTH
+	MOV R10, _SB_BWIDTH
 	MOD R6, R10
 	
 	MOV R7, R5			; maxY = fillPixels / BWIDTH
 	DIV R7, R10
 	
 _SB_DrawSB_clearBar:
-	MOV R0, CORNER_X
-	MOV R1, CORNER_Y
-	MOV R2, BWIDTH
-	MOV R3, BHEIGHT
+	MOV R0, _SB_CORNER_X
+	MOV R1, _SB_CORNER_Y
+	MOV R2, _SB_BWIDTH
+	MOV R3, _SB_BHEIGHT
 	MOV R4, 0
 	;Input R0(X) R1(Y) R2(width) R3(height) R4(Color)
 	CALL MD_DrawRect
 	
 _SB_DrawSB_draw:	
-	MOV R0, CORNER_X		; Set cornerX (const)
-	MOV R1, CORNER_Y		; cornerY = CORNER_Y + BHEIGHT - maxY
-	MOV R10, BHEIGHT
+	MOV R0, _SB_CORNER_X		; Set cornerX (const)
+	MOV R1, _SB_CORNER_Y		; cornerY = CORNER_Y + BHEIGHT - maxY
+	MOV R10, _SB_BHEIGHT
 	ADD R1, R10
 	SUB R1, R7
-	MOV R2, BWIDTH			; Set width (const)
+	MOV R2, _SB_BWIDTH			; Set width (const)
 	MOV R3, R7				; Set height = maxY
 	CMP R3, 0
 	JEQ _SB_DrawSB_drawPartial	; if (height == 0) only draw partial
@@ -79,9 +88,9 @@ _SB_DrawSB_draw:
 _SB_DrawSB_drawPartial:
 	CMP R6, 0
 	JEQ _SB_DrawSB_End
-	MOV R0, CORNER_X
-	MOV R1, CORNER_Y		; cornerY = CORNER_Y + BHEIGHT - maxY - 1
-	MOV R10, BHEIGHT
+	MOV R0, _SB_CORNER_X
+	MOV R1, _SB_CORNER_Y		; cornerY = CORNER_Y + BHEIGHT - maxY - 1
+	MOV R10, _SB_BHEIGHT
 	ADD R1, R10
 	SUB R1, R7
 	SUB R1, 1
@@ -154,10 +163,3 @@ _SB_AddScore_loop:
 	POP R0
 _SB_AddScore_ret:
 	RET
-	
-	
-_SB_Color:
-	WORD 0FF00H
-	
-_SB_Score:
-	WORD 0

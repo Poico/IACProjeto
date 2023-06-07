@@ -4,8 +4,10 @@
 #include:MediaDrive.asm
 #include:RNG.asm
 
+#section:equ
 _TL_BoardArea EQU	200
 
+#section:data
 _TL_TetraColors: WORD 0000H,	0FFF0H,		0FF00H,		0F5F8H,			0F0FFH,		0F00FH,		0FF80H,			0F70FH
 _TL_Tetras: WORD	  0000H,	_TL_Square,	_TL_Z_Horz,	_TL_invZ_Horz,	_TL_I_Vert,	_TL_L_ANG0,	_TL_invL_ANG0,	_TL_T_ANG0
 					;Master Block
@@ -51,6 +53,7 @@ _TL_NextTetra:
 _TL_Board:
 	TABLE _TL_BoardArea
 
+#section:text
 ;Input nothing
 ;Output nothing
 ;Clears The Board

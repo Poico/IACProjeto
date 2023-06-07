@@ -1,5 +1,27 @@
 ; MediaDrive.asm
 
+#section:equ
+;---Constants------
+MD_Commands EQU						6000H
+MD_Command_ClearScreen EQU			MD_Commands+02H
+MD_Command_AutoMov EQU				MD_Commands+10H
+MD_Command_RemoveWarning EQU		MD_Commands+40H
+MD_Command_SetX EQU					MD_Commands+0CH
+MD_Command_SetY EQU					MD_Commands+0AH
+MD_Command_Draw EQU					MD_Commands+12H
+MD_Command_SetBackground EQU		MD_Commands+42H
+MD_Command_PlayVideoMusic EQU		MD_Commands+5AH
+MD_Command_PlayVideoMusicLoop EQU	MD_Commands+5CH
+MD_Command_PauseVideoMusic EQU		MD_Commands+5EH
+MD_Command_ContinueVideoMusic EQU	MD_Commands+60H
+MD_Command_StopsVideoMusic EQU		MD_Commands+66H
+
+_MD_Memmory EQU	8000H
+_MD_Width EQU 	32
+_MD_Height EQU	64
+
+#section:data
+
 MD_TestPalette:
 ;	0	  1	  2	  3	  4
 WORD 0FFFFH,00000H,0F000H,0FF00H,0F0DFH
@@ -43,25 +65,7 @@ WORD	07B6FH,	02492H,	073E7H,	079E7H,	049EDH,	079CFH,	07BCFH,	04927H,
 ;		8		9		A		B		C		D		E		F
 		07BEFH,	049EFH,	05BEFH,	03AEBH,	0624EH,	03B6BH,	073CFH,	013CFH
 
-;---Constants------
-MD_Commands EQU						6000H
-MD_Command_ClearScreen EQU			MD_Commands+02H
-MD_Command_AutoMov EQU				MD_Commands+10H
-MD_Command_RemoveWarning EQU		MD_Commands+40H
-MD_Command_SetX EQU					MD_Commands+0CH
-MD_Command_SetY EQU					MD_Commands+0AH
-MD_Command_Draw EQU					MD_Commands+12H
-MD_Command_SetBackground EQU		MD_Commands+42H
-MD_Command_PlayVideoMusic EQU		MD_Commands+5AH
-MD_Command_PlayVideoMusicLoop EQU	MD_Commands+5CH
-MD_Command_PauseVideoMusic EQU		MD_Commands+5EH
-MD_Command_ContinueVideoMusic EQU	MD_Commands+60H
-MD_Command_StopsVideoMusic EQU		MD_Commands+66H
-
-
-_MD_Memmory EQU	8000H
-_MD_Width EQU 	32
-_MD_Height EQU	64
+#section:text
 
 ;Input nothing
 ;Output nothing
