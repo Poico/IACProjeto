@@ -11,7 +11,7 @@
 
 #section:equ
 _IT_CLR_TV_TD 	EQU 0FF3FH	; Bitmask to clear TV & TD
-_IT_SET_INTS 	EQU 01F00H	; Bitmask to set IE and IE# (0-3)
+_IT_SET_INTS 	EQU 01100H	; Bitmask to set IE and IE# (0-3)
 _IT_CLR_GINTS 	EQU 0F1FFH	; Bitmask to clear game interrupts IE# (0-2)
 _IT_SET_GINTS	EQU 00E00H	; Bitmask to set game interrupts IE# (0-2)
 
