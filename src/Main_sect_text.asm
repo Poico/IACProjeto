@@ -1139,19 +1139,17 @@ _TL_MoveTetra_loop:
 	CMP R3,0
 	JNZ _TL_MoveTetra_loop
 
-	POP R5
-	POP R4
-	POP R3
-
 	MOV R2,1
-	RET
+	JMP _TL_MoveTetra_End
 
 _TL_MoveTetra_Cancel:
+
+	MOV R2,0
+
+_TL_MoveTetra_End:
 	POP R5
 	POP R4
 	POP R3
-
-	MOV R2,0
 
 	RET
 
@@ -1160,11 +1158,14 @@ _TL_MoveTetra_Cancel:
 ;
 TL_TryBlock:
 	
+	;R0(X) >= 0
 	CMP R0,0
 	JNN _TL_PassXMin
 	MOV R2,1
 	RET
 _TL_PassXMin:
+
+	;R0(X) <= 9
 	MOV R2,9
 	CMP R0,R2
 	JN _TL_PassXMax
@@ -1172,11 +1173,15 @@ _TL_PassXMin:
 	MOV R2,1
 	RET
 _TL_PassXMax:
+
+	;R1(Y) >= 0
 	CMP R1,0
 	JNN _TL_PassYMin
 	MOV R2,1
 	RET
 _TL_PassYMin:
+
+	;R1(Y) <= 19
 	MOV R2,19
 	CMP R1,R2
 	JN _TL_PassYMax
@@ -1191,12 +1196,12 @@ _TL_PassYMax:
 
 	MOV R2,_TL_Board
 	MOV R3,10
-	MUL R1,R3
-	SHL R0,1
-	SHL R1,1
+	MUL R1,R3;Y*10
+	SHL R0,1;done to get the correct offset for data
+	SHL R1,1;done to get the correct offset for data
 	ADD R2,R0
 	ADD R2,R1
-	MOV R2,[R2]
+	MOV R2,[R2];get data of the board at [X+Y*10]
 
 	POP R3
 	POP R1
@@ -1205,14 +1210,17 @@ _TL_PassYMax:
 	CMP R2,0
 	JNZ _TL_TryBlock_No
 	MOV R2,1
-	RET
+	JMP _TL_TryBlock_End
+
 _TL_TryBlock_No:
 	MOV R2,0
+
+_TL_TryBlock_End:
 	RET
 
 ;Input nothing
 ;Output nothing
-;Draws the tetra 
+;Draws the moving tetra 
 TL_DrawMovingTetra:
 	PUSH R0
 	PUSH R1
@@ -1258,7 +1266,7 @@ _TL_DrawMovingTetra_loop:
 
 ;Input nothing
 ;Output nothing
-;
+;realizes the moving tetra to the board
 TL_FinalizeTetra:
 
 	PUSH R0
@@ -1280,10 +1288,10 @@ _TL_FinalizeTetra_loop:
 	ADD R0,4
 	MOV R4,[R0+0];X
 	MOV R5,[R0+2];Y
-	MUL R5,R7
-	ADD R4,R5
-	SHL R4,1
-	MOV [R1+R4],R2
+	MUL R5,R7;Y*10
+	ADD R4,R5;X+Y*10
+	SHL R4,1;Correct offset for data
+	MOV [R1+R4],R2;Set data on board
 	SUB R6,1
 	CMP R6,0
 	JNZ _TL_FinalizeTetra_loop
@@ -1340,7 +1348,7 @@ TL_LineCheck:
 	PUSH R2
 
 	MOV R1,10
-	MUL R0,R1
+	MUL R0,R1;to get the correct index of the starting block of the line
 	SHL R0,1
 	MOV R2,_TL_Board
 	ADD R0,R2
@@ -1357,19 +1365,16 @@ _TL_LineCheck_loop:
 	CMP R2,0
 	JNZ _TL_LineCheck_loop
 
-	POP R2
-	POP R0
-
 	MOV R1,1
-
-	RET
+	JMP _TL_LineCheck_End
 
 _TL_LineCheck_fail:
+	MOV R1,0
 
+_TL_LineCheck_End:
 	POP R2
 	POP R0
 
-	MOV R1,0
 	RET
 
 ;Input R0(index)
@@ -1384,16 +1389,16 @@ TL_LineFall:
 	ADD R0,1
 	MOV R1,10
 	MUL R0,R1
-	SHL R0,1
+	SHL R0,1;get correct offset to the lines block
 	MOV R2,_TL_Board
 	ADD R0,R2
-	MOV R1,22
+	MOV R1,22;the last place to be checked
 	ADD R2,R1
-	MOV R1,-20
+	MOV R1,-20;offset for the block above
 
 _TL_LineFall_loop:
 	SUB R0,2
-	MOV R3,[R0+R1]
+	MOV R3,[R0+R1];Copy from above to here
 	MOV [R0],R3
 	CMP R0,R2
 	JNN _TL_LineFall_loop
@@ -1404,7 +1409,7 @@ _TL_LineFall_loop:
 _TL_LineFall_loop_finalize:
 	SUB R0,2
 	MOV R3,0
-	MOV [R0],R3
+	MOV [R0],R3;set top most line to blank
 	CMP R0,R2
 	JNN _TL_LineFall_loop_finalize
 
@@ -1429,9 +1434,9 @@ TL_DrawBoard:
 	MOV R0,_TL_Board
 	MOV R1,_TL_TetraColors
 	MOV R3,20
-	MOV R4,14
-	MOV R6,1
-	MOV R7,0
+	MOV R4,14;Offset from the top most part of the screen
+	MOV R6,1;Offset from the left most part of the screen
+	MOV R7,0;redraw flag
 	MOV R8,0
 
 _TL_DrawBoard_height:
@@ -1439,7 +1444,7 @@ _TL_DrawBoard_height:
 
 	MOV [MD_Command_SetX],R6;Set X
 	MOV [MD_Command_SetY],R4;Set Y
-	MOV R8,R0
+	MOV R8,R0;remeber this place
 _TL_DrawBoard_width:
 	MOV R5,[R0]
 	SHL R5,1
@@ -1462,10 +1467,10 @@ _TL_DrawBoard_width:
 	MOV R7,-1
 	JMP _TL_DrawBoard_noskip
 _TL_DrawBoard_skip:
-	MOV R0,R8
+	MOV R0,R8;set back so that the board draws another line again
 _TL_DrawBoard_noskip:
 	ADD R4,1
-	ADD R7,1
+	ADD R7,1;update redraw flag
 	CMP R3,0
 	JNZ _TL_DrawBoard_height
 
@@ -1576,12 +1581,21 @@ TL_MakeNextTetra:
 	MOV R0,4
 	MOV R1,0
 	CALL TL_MoveTetra
+
+	CMP R2,0
+	JZ TL_MakeNextTetra_lose
+
 	CALL RNG_STEP
 	MOD R0,R3
 	ADD R0,1
 	MOV R2,_TL_NextTetra
 	MOV [R2],R0
+	JMP TL_MakeNextTetra_end
 
+TL_MakeNextTetra_lose:
+	;Goto Lose Screen
+
+TL_MakeNextTetra_end:
 	POP R3
 	POP R2
 	POP R1
@@ -1681,23 +1695,23 @@ TL_DrawNextTertra:
 
 _TL_DrawNextTertra_loop:
 
-	MOV R3,23
-	MOV R4,38
+	MOV R3,23;Offset from the left of the screen
+	MOV R4,38;Offset from the top of the screen
 	MOV R5,[R2]
 	SHL R5,1
 	MOV R6,[R2+2]
 	SHL R6,1
 	ADD R3,R5
 	ADD R4,R6
-	MOV [MD_Commands+0CH],R3;Set X
-	MOV [MD_Commands+0AH],R4;Set Y
-	MOV [MD_Commands+12H],R1;Draw
-	MOV [MD_Commands+12H],R1;Draw
-	MOV [MD_Commands+0CH],R3;Set X
+	MOV [MD_Command_SetX],R3;Set X
+	MOV [MD_Command_SetY],R4;Set Y
+	MOV [MD_Command_Draw],R1;Draw
+	MOV [MD_Command_Draw],R1;Draw
+	MOV [MD_Command_SetX],R3;Set X
 	ADD R4,1
-	MOV [MD_Commands+0AH],R4;Set Y
-	MOV [MD_Commands+12H],R1;Draw
-	MOV [MD_Commands+12H],R1;Draw
+	MOV [MD_Command_SetY],R4;Set Y
+	MOV [MD_Command_Draw],R1;Draw
+	MOV [MD_Command_Draw],R1;Draw
 
 	ADD R2,4
 	SUB R7,1
