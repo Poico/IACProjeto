@@ -49,11 +49,14 @@ WORD	07B6FH,	02492H,	073E7H,	079E7H,	049EDH,	079CFH,	07BCFH,	04927H,
 ;		8		9		A		B		C		D		E		F
 		07BEFH,	049EFH,	05BEFH,	03AEBH,	0624EH,	03B6BH,	073CFH,	013CFH
 
+_SB_DrawFlag:
+	WORD 0
+
 _SB_Color:
 	WORD 0FF00H
 	
 _SB_Score:
-	WORD 0
+	WORD 4
 
 _MAN_TogglePause:
 	WORD 0
@@ -89,7 +92,7 @@ _KB_NextKeyPressHandle:
 _KB_NextKeyHoldHandle:
 	WORD 0
 	
-_KB_HandleEnabled:
+_KB_HandleFlag:
 	WORD 0
 
 _IT_interrupt_vectors:
@@ -146,4 +149,9 @@ _TL_NextTetra:
 
 _TL_Board:
 	TABLE _TL_BoardArea
+	
+_TL_DrawFlag:
+	WORD 0
+_TL_GravFlag:
+	WORD 0
 

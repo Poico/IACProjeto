@@ -52,6 +52,11 @@ _TL_NextTetra:
 
 _TL_Board:
 	TABLE _TL_BoardArea
+	
+_TL_DrawFlag:
+	WORD 0
+_TL_GravFlag:
+	WORD 0
 
 #section:text
 ;Input nothing
@@ -575,8 +580,8 @@ _TL_LineFall_loop_finalize:
 	POP R0
 	RET
 
+; Draw the playing board
 TL_DrawBoard:
-
 	PUSH R0
 	PUSH R1
 	PUSH R2
@@ -645,9 +650,21 @@ _TL_DrawBoard_noskip:
 ;Output nothing
 ;Draw All TetraLogic stuff
 TL_DrawTetraLogic:
+	PUSH R0
+	; Check flag early to lower performance impact
+	MOV R0, [_TL_DrawFlag]
+	CMP R0, 0
+	JEQ TL_DrawTetraLogic_flagAbort ; Skip if flag not set
+	
 	CALL TL_DrawBoard
 	CALL TL_DrawMovingTetra
 	CALL TL_DrawNextTertra
+	
+	XOR R0, R0
+	MOV [_TL_DrawFlag], R0 ; Reset flag
+	
+TL_DrawTetraLogic_flagAbort:
+	POP R0
 	RET
 
 ;Input nothing
@@ -684,7 +701,6 @@ TL_MoveTetraRight:
 ;Output nothing
 ;Inializes the tetralogic stuff
 TL_InitTetraLogic:
-
 	PUSH R0
 	PUSH R1
 	PUSH R2
@@ -713,7 +729,6 @@ TL_InitTetraLogic:
 ;Output nothing
 ;Makes the new moving tetra from the next and makes a new next
 TL_MakeNextTetra:
-
 	PUSH R0
 	PUSH R1
 	PUSH R2
@@ -743,8 +758,12 @@ TL_MakeNextTetra:
 ;Output nothing
 ;Makes The Piece Gravatity and ending
 TL_TetraLogicGrav:
-	
 	PUSH R0
+	;Check flag early to minimize performance impact
+	MOV R0, [_TL_GravFlag]
+	CMP R0, 0
+	JEQ _TL_TetraLogicGrav_flagAbort
+	
 	PUSH R1
 	PUSH R2
 
@@ -761,9 +780,14 @@ TL_TetraLogicGrav:
 	;[TODO : Score Goes Here]
 
 _TL_TetraLogicGrav_Nocoll:
-
 	POP R2
 	POP R1
+	
+	;Reset flag
+	XOR R0, R0
+	MOV [_TL_GravFlag], R0
+	
+_TL_TetraLogicGrav_flagAbort:
 	POP R0
 	RET
 
@@ -853,5 +877,37 @@ _TL_DrawNextTertra_loop:
 	POP R3
 	POP R2
 	POP R1
+	POP R0
+	RET
+
+; Sets draw flag
+TL_EnableDrawFlag:
+	PUSH R0
+	MOV R0, 1
+	MOV [_TL_DrawFlag], R0
+	POP R0
+	RET
+	
+; Sets gravity flag
+TL_EnableGravityFlag:
+	PUSH R0
+	MOV R0, 1
+	MOV [_TL_GravFlag], R0
+	POP R0
+	RET
+	
+; Resets draw flag
+TL_DisableDrawFlag:
+	PUSH R0
+	XOR R0, R0
+	MOV [_TL_DrawFlag], R0
+	POP R0
+	RET
+	
+; Resets gravity flag
+TL_DisableGravityFlag:
+	PUSH R0
+	XOR R0, R0
+	MOV [_TL_GravFlag], R0
 	POP R0
 	RET

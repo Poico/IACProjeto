@@ -36,7 +36,7 @@ _KB_NextKeyPressHandle:
 _KB_NextKeyHoldHandle:
 	WORD 0
 	
-_KB_HandleEnabled:
+_KB_HandleFlag:
 	WORD 0
 
 #section:text
@@ -153,7 +153,7 @@ _KB_PollKey_end:
 KB_EnableHandle:
 	PUSH R0
 	MOV R0, 1
-	MOV [_KB_HandleEnabled], R0
+	MOV [_KB_HandleFlag], R0
 	POP R0
 	RET
 
@@ -161,11 +161,11 @@ KB_EnableHandle:
 KB_DoHandles:
 	PUSH R0	; Handle pointer
 	
-	MOV R0, [_KB_HandleEnabled]
+	MOV R0, [_KB_HandleFlag]
 	TEST R0, R0
 	JEQ _KB_DoHandles_end
 	XOR R0, R0
-	MOV [_KB_HandleEnabled], R0		; Reset handle lock
+	MOV [_KB_HandleFlag], R0		; Reset handle flag
 	
 _KB_DoHandles_hold:
 	MOV R0, [_KB_NextKeyHoldHandle]	; Load handle pointer

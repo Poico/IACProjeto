@@ -61,23 +61,23 @@ IT_EnableGameInterrupts:
 
 _IT_INT0:
 _IT_drawINT:
-	CALL SB_DrawSB
-	CALL TL_DrawTetraLogic
+	CALL SB_EnableDrawFlag
+	CALL TL_EnableDrawFlag
 	RFE
 	
 _IT_INT1:
 _IT_animationINT:
-	CALL SB_UpdateColor
+	CALL SB_UpdateColor ; Should be inlined
 	RFE
 	
 _IT_INT2:
 _IT_gravityINT:
-	CALL TL_TetraLogicGrav
+	CALL TL_EnableGravityFlag
 	RFE
 	
 _IT_INT3:
 _IT_inputINT:
-	CALL KB_EnableHandle
+	CALL KB_EnableHandle ; Should be inlined
 	RFE
 	
 _IT_EXCESSO:

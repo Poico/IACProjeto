@@ -15,13 +15,18 @@ entry:
 	CALL TL_InitTetraLogic
 	
 	CALL MAN_StartBackgroundMusic
+	CALL MD_ClearScreen
 	
 	
-	
-poll_loop:
-	CALL KB_PollKey
-	CALL KB_DoHandles
-	JMP poll_loop
+;Application loop to execute code
+;Interrupts signal functions to execute or return early
+exec_loop:
+	CALL KB_PollKey ; Constantly poll keyboard
+	CALL KB_DoHandles 		; Do handles if flag is set
+	CALL SB_DrawSB			; Draw if flag is set
+	CALL TL_DrawTetraLogic	; Draw if flag is set
+	CALL TL_TetraLogicGrav	; Update if flag is set
+	JMP exec_loop
 	
 end:
 	JMP end
@@ -338,6 +343,12 @@ BC_WriteToDisp:
 ; Draws score bar and writes to hex display
 SB_DrawSB:
 	PUSH R0
+	
+	;Check draw flag early to minimize performance drop
+	MOV R0, [_SB_DrawFlag]
+	CMP R0, 0
+	JEQ _SB_DrawSB_flagAbort
+	
 	PUSH R1				; <draw call args>
 	PUSH R2				; <draw call args>
 	PUSH R3				; <draw call args>
@@ -400,7 +411,7 @@ _SB_DrawSB_draw:
 	MOV R4, [_SB_Color]	; Get color
 	CALL MD_DrawRect
 	
-_SB_DrawSB_drawPartial:
+_SB_DrawSB_drawPartial: ;TODO: Fix draw partial not drawing on first line
 	CMP R6, 0
 	JEQ _SB_DrawSB_End
 	MOV R0, _SB_CORNER_X
@@ -424,6 +435,12 @@ _SB_DrawSB_End:
 	POP R3
 	POP R2
 	POP R1
+	
+	;Reset flag
+	XOR R0, R0
+	MOV [_SB_DrawFlag], R0
+	
+_SB_DrawSB_flagAbort:
 	POP R0
 	RET
 	
@@ -474,9 +491,31 @@ _SB_AddScore_loop:
 	ADD R0, R1
 	MOV [_SB_Score], R0
 	
+	MOV R1, _SB_MAX
+	CMP R0, R1
+	JLT _SB_AddScore_noWin
+	CALL MAN_ShowWinScreen
+	
+_SB_AddScore_noWin:
 	POP R1
 	POP R0
 _SB_AddScore_ret:
+	RET
+
+;Sets draw flag
+SB_EnableDrawFlag:
+	PUSH R0
+	MOV R0, 1
+	MOV [_SB_DrawFlag], R0
+	POP R0
+	RET
+	
+;Resets draw flag
+SB_DisableDrawFlag:
+	PUSH R0
+	XOR R0, R0
+	MOV [_SB_DrawFlag], R0
+	POP R0
 	RET
 ; keyboard.asm - Keyboard interfacing functions
 
@@ -489,7 +528,7 @@ MAN_MainMenu:
 
 	PUSH R0
 	
-	MOV R0 , 0 ; Set MainMenuBackground (ID-0)
+	MOV R0, _MAN_MENU_BACKGROUND
 	CALL MD_SetBack ; Call Function Set
 	
 	POP R0
@@ -498,22 +537,18 @@ MAN_MainMenu:
 	
 ;Sets Play Menu Background
 MAN_PlayMenu:
-
 	PUSH R0
 	
-	MOV R0 , 1 ; Set PlayMenuBackground (ID-1)
+	MOV R0, _MAN_PLAY_BACKGROUND
 	CALL MD_SetBack ; Call Function Set
 	CALL IT_EnableGameInterrupts
 	
 	POP R0
-	
 	RET
 
 	
-	
 ;Sets Pause Menu Background
 MAN_PauseClick:
-
 	PUSH R0
 	PUSH R1
 	
@@ -529,7 +564,7 @@ _MAN_UnPause:
 	JMP _MAN_PauseClick_end
 	
 _MAN_Pause:
-	MOV R0 , 2 ; Set PlayPauseMenu (ID-2)
+	MOV R0, _MAN_PAUSE_BACKGROUND
 	CALL MD_SetBack ; Call Function Set
 	MOV R0, 1
 	MOV [_MAN_TogglePause], R0
@@ -538,7 +573,6 @@ _MAN_Pause:
 _MAN_PauseClick_end:
 	POP R1
 	POP R0
-	
 	RET
 
 MAN_StartBackgroundMusic:
@@ -547,17 +581,16 @@ MAN_StartBackgroundMusic:
 	CALL MD_Loop ;function to play music on loop 
 	
 	POP R0
+	RET
 
 ;Plays One Time Sound of the Line Clear
 MAN_LineCleared:
-
 	PUSH R0 ; ID for the Sound
 	
 	MOV R0 , 1 ; Set LineClearedSound (ID-1)
 	CALL MD_Play
 	
 	POP R0
-	
 	RET
 
 
@@ -582,14 +615,29 @@ _MAN_PlayMusic:
 	CALL MD_Unpause ; Call Function Set
 	MOV [_MAN_TogglePause], R0
 
-
 _MAN_BackgroundMusicClick_end:
 	POP R1
 	POP R0
-	
 	RET
 
 
+;Changes background to win screen
+MAN_ShowWinScreen:
+	PUSH R0
+	MOV R0, _MAN_WIN_BACKGROUND
+	CALL MD_SetBack ; Call Function Set
+	CALL IT_DisableGameInterrupts
+	CALL MD_ClearScreen
+	CALL SB_DisableDrawFlag
+	CALL TL_DisableDrawFlag
+	CALL TL_DisableGravityFlag
+	POP R0
+	JMP _MAN_WinStuckLoop
+	RET ;Here to conserve structure, never reached
+	
+_MAN_WinStuckLoop:
+	DI
+	JMP _MAN_WinStuckLoop ;infinite loop for win condition
 
 ; Returns first pressed key in R0
 KB_GetKey:
@@ -704,7 +752,7 @@ _KB_PollKey_end:
 KB_EnableHandle:
 	PUSH R0
 	MOV R0, 1
-	MOV [_KB_HandleEnabled], R0
+	MOV [_KB_HandleFlag], R0
 	POP R0
 	RET
 
@@ -712,11 +760,11 @@ KB_EnableHandle:
 KB_DoHandles:
 	PUSH R0	; Handle pointer
 	
-	MOV R0, [_KB_HandleEnabled]
+	MOV R0, [_KB_HandleFlag]
 	TEST R0, R0
 	JEQ _KB_DoHandles_end
 	XOR R0, R0
-	MOV [_KB_HandleEnabled], R0		; Reset handle lock
+	MOV [_KB_HandleFlag], R0		; Reset handle flag
 	
 _KB_DoHandles_hold:
 	MOV R0, [_KB_NextKeyHoldHandle]	; Load handle pointer
@@ -778,23 +826,23 @@ IT_EnableGameInterrupts:
 
 _IT_INT0:
 _IT_drawINT:
-	CALL SB_DrawSB
-	CALL TL_DrawTetraLogic
+	CALL SB_EnableDrawFlag
+	CALL TL_EnableDrawFlag
 	RFE
 	
 _IT_INT1:
 _IT_animationINT:
-	CALL SB_UpdateColor
+	CALL SB_UpdateColor ; Should be inlined
 	RFE
 	
 _IT_INT2:
 _IT_gravityINT:
-	CALL TL_TetraLogicGrav
+	CALL TL_EnableGravityFlag
 	RFE
 	
 _IT_INT3:
 _IT_inputINT:
-	CALL KB_EnableHandle
+	CALL KB_EnableHandle ; Should be inlined
 	RFE
 	
 _IT_EXCESSO:
@@ -1366,8 +1414,8 @@ _TL_LineFall_loop_finalize:
 	POP R0
 	RET
 
+; Draw the playing board
 TL_DrawBoard:
-
 	PUSH R0
 	PUSH R1
 	PUSH R2
@@ -1436,9 +1484,21 @@ _TL_DrawBoard_noskip:
 ;Output nothing
 ;Draw All TetraLogic stuff
 TL_DrawTetraLogic:
+	PUSH R0
+	; Check flag early to lower performance impact
+	MOV R0, [_TL_DrawFlag]
+	CMP R0, 0
+	JEQ TL_DrawTetraLogic_flagAbort ; Skip if flag not set
+	
 	CALL TL_DrawBoard
 	CALL TL_DrawMovingTetra
 	CALL TL_DrawNextTertra
+	
+	XOR R0, R0
+	MOV [_TL_DrawFlag], R0 ; Reset flag
+	
+TL_DrawTetraLogic_flagAbort:
+	POP R0
 	RET
 
 ;Input nothing
@@ -1475,7 +1535,6 @@ TL_MoveTetraRight:
 ;Output nothing
 ;Inializes the tetralogic stuff
 TL_InitTetraLogic:
-
 	PUSH R0
 	PUSH R1
 	PUSH R2
@@ -1504,7 +1563,6 @@ TL_InitTetraLogic:
 ;Output nothing
 ;Makes the new moving tetra from the next and makes a new next
 TL_MakeNextTetra:
-
 	PUSH R0
 	PUSH R1
 	PUSH R2
@@ -1534,8 +1592,12 @@ TL_MakeNextTetra:
 ;Output nothing
 ;Makes The Piece Gravatity and ending
 TL_TetraLogicGrav:
-	
 	PUSH R0
+	;Check flag early to minimize performance impact
+	MOV R0, [_TL_GravFlag]
+	CMP R0, 0
+	JEQ _TL_TetraLogicGrav_flagAbort
+	
 	PUSH R1
 	PUSH R2
 
@@ -1552,9 +1614,14 @@ TL_TetraLogicGrav:
 	;[TODO : Score Goes Here]
 
 _TL_TetraLogicGrav_Nocoll:
-
 	POP R2
 	POP R1
+	
+	;Reset flag
+	XOR R0, R0
+	MOV [_TL_GravFlag], R0
+	
+_TL_TetraLogicGrav_flagAbort:
 	POP R0
 	RET
 
@@ -1644,5 +1711,37 @@ _TL_DrawNextTertra_loop:
 	POP R3
 	POP R2
 	POP R1
+	POP R0
+	RET
+
+; Sets draw flag
+TL_EnableDrawFlag:
+	PUSH R0
+	MOV R0, 1
+	MOV [_TL_DrawFlag], R0
+	POP R0
+	RET
+	
+; Sets gravity flag
+TL_EnableGravityFlag:
+	PUSH R0
+	MOV R0, 1
+	MOV [_TL_GravFlag], R0
+	POP R0
+	RET
+	
+; Resets draw flag
+TL_DisableDrawFlag:
+	PUSH R0
+	XOR R0, R0
+	MOV [_TL_DrawFlag], R0
+	POP R0
+	RET
+	
+; Resets gravity flag
+TL_DisableGravityFlag:
+	PUSH R0
+	XOR R0, R0
+	MOV [_TL_GravFlag], R0
 	POP R0
 	RET

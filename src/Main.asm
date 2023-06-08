@@ -25,13 +25,18 @@ entry:
 	CALL TL_InitTetraLogic
 	
 	CALL MAN_StartBackgroundMusic
+	CALL MD_ClearScreen
 	
 	
-	
-poll_loop:
-	CALL KB_PollKey
-	CALL KB_DoHandles
-	JMP poll_loop
+;Application loop to execute code
+;Interrupts signal functions to execute or return early
+exec_loop:
+	CALL KB_PollKey ; Constantly poll keyboard
+	CALL KB_DoHandles 		; Do handles if flag is set
+	CALL SB_DrawSB			; Draw if flag is set
+	CALL TL_DrawTetraLogic	; Draw if flag is set
+	CALL TL_TetraLogicGrav	; Update if flag is set
+	JMP exec_loop
 	
 end:
 	JMP end

@@ -13,16 +13,25 @@ _SB_CORNER_Y	EQU 18
 _SB_MAX			EQU 100
 
 #section:data
+_SB_DrawFlag:
+	WORD 0
+
 _SB_Color:
 	WORD 0FF00H
 	
 _SB_Score:
-	WORD 0
+	WORD 4
 
 #section:text
 ; Draws score bar and writes to hex display
 SB_DrawSB:
 	PUSH R0
+	
+	;Check draw flag early to minimize performance drop
+	MOV R0, [_SB_DrawFlag]
+	CMP R0, 0
+	JEQ _SB_DrawSB_flagAbort
+	
 	PUSH R1				; <draw call args>
 	PUSH R2				; <draw call args>
 	PUSH R3				; <draw call args>
@@ -85,7 +94,7 @@ _SB_DrawSB_draw:
 	MOV R4, [_SB_Color]	; Get color
 	CALL MD_DrawRect
 	
-_SB_DrawSB_drawPartial:
+_SB_DrawSB_drawPartial: ;TODO: Fix draw partial not drawing on first line
 	CMP R6, 0
 	JEQ _SB_DrawSB_End
 	MOV R0, _SB_CORNER_X
@@ -109,6 +118,12 @@ _SB_DrawSB_End:
 	POP R3
 	POP R2
 	POP R1
+	
+	;Reset flag
+	XOR R0, R0
+	MOV [_SB_DrawFlag], R0
+	
+_SB_DrawSB_flagAbort:
 	POP R0
 	RET
 	
@@ -159,7 +174,29 @@ _SB_AddScore_loop:
 	ADD R0, R1
 	MOV [_SB_Score], R0
 	
+	MOV R1, _SB_MAX
+	CMP R0, R1
+	JLT _SB_AddScore_noWin
+	CALL MAN_ShowWinScreen
+	
+_SB_AddScore_noWin:
 	POP R1
 	POP R0
 _SB_AddScore_ret:
+	RET
+
+;Sets draw flag
+SB_EnableDrawFlag:
+	PUSH R0
+	MOV R0, 1
+	MOV [_SB_DrawFlag], R0
+	POP R0
+	RET
+	
+;Resets draw flag
+SB_DisableDrawFlag:
+	PUSH R0
+	XOR R0, R0
+	MOV [_SB_DrawFlag], R0
+	POP R0
 	RET
