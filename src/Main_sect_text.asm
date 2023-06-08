@@ -397,21 +397,21 @@ _SB_DrawSB_clearBar:
 	;Input R0(X) R1(Y) R2(width) R3(height) R4(Color)
 	CALL MD_DrawRect
 	
-_SB_DrawSB_draw:	
+_SB_DrawSB_draw:
+	MOV R4, [_SB_Color]			; Get color
 	MOV R0, _SB_CORNER_X		; Set cornerX (const)
 	MOV R1, _SB_CORNER_Y		; cornerY = CORNER_Y + BHEIGHT - maxY
 	MOV R10, _SB_BHEIGHT
 	ADD R1, R10
 	SUB R1, R7
 	MOV R2, _SB_BWIDTH			; Set width (const)
-	MOV R3, R7				; Set height = maxY
+	MOV R3, R7					; Set height = maxY
 	CMP R3, 0
 	JEQ _SB_DrawSB_drawPartial	; if (height == 0) only draw partial
 	;Input R0(X) R1(Y) R2(width) R3(height) R4(Color)
-	MOV R4, [_SB_Color]	; Get color
 	CALL MD_DrawRect
 	
-_SB_DrawSB_drawPartial: ;TODO: Fix draw partial not drawing on first line
+_SB_DrawSB_drawPartial:
 	CMP R6, 0
 	JEQ _SB_DrawSB_End
 	MOV R0, _SB_CORNER_X
@@ -639,7 +639,7 @@ _MAN_WinStuckLoop:
 	DI
 	JMP _MAN_WinStuckLoop ;infinite loop for win condition
 
-;Changes background to win screen
+;Changes background to lose screen
 MAN_ShowLoseScreen:
 	PUSH R0
 	MOV R0, _MAN_LOSE_BACKGROUND
@@ -655,7 +655,7 @@ MAN_ShowLoseScreen:
 	
 _MAN_LoseStuckLoop:
 	DI
-	JMP _MAN_LoseStuckLoop ;infinite loop for win condition
+	JMP _MAN_LoseStuckLoop ;infinite loop for lose condition
 
 ; Returns first pressed key in R0
 KB_GetKey:
