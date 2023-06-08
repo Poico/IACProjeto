@@ -759,7 +759,7 @@ TL_MakeNextTetra:
 	JMP TL_MakeNextTetra_end
 
 TL_MakeNextTetra_lose:
-	;Goto Lose Screen
+	CALL MAN_ShowLoseScreen
 
 TL_MakeNextTetra_end:
 	POP R3
@@ -791,7 +791,6 @@ TL_TetraLogicGrav:
 	CALL TL_BoardCheck
 	CALL SB_AddScore
 	CALL MAN_LineCleared
-	;[TODO : Score Goes Here]
 
 _TL_TetraLogicGrav_Nocoll:
 	POP R2

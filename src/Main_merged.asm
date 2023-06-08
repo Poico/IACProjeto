@@ -845,6 +845,24 @@ _MAN_WinStuckLoop:
 	DI
 	JMP _MAN_WinStuckLoop ;infinite loop for win condition
 
+;Changes background to win screen
+MAN_ShowLoseScreen:
+	PUSH R0
+	MOV R0, _MAN_LOSE_BACKGROUND
+	CALL MD_SetBack ; Call Function Set
+	CALL IT_DisableGameInterrupts
+	CALL MD_ClearScreen
+	CALL SB_DisableDrawFlag
+	CALL TL_DisableDrawFlag
+	CALL TL_DisableGravityFlag
+	POP R0
+	JMP _MAN_LoseStuckLoop
+	RET ;Here to conserve structure, never reached
+	
+_MAN_LoseStuckLoop:
+	DI
+	JMP _MAN_LoseStuckLoop ;infinite loop for win condition
+
 ; Returns first pressed key in R0
 KB_GetKey:
 	PUSH R1 	; keyboard output pointer (write test)
@@ -1799,7 +1817,7 @@ TL_MakeNextTetra:
 	JMP TL_MakeNextTetra_end
 
 TL_MakeNextTetra_lose:
-	;Goto Lose Screen
+	CALL MAN_ShowLoseScreen
 
 TL_MakeNextTetra_end:
 	POP R3
@@ -1831,7 +1849,6 @@ TL_TetraLogicGrav:
 	CALL TL_BoardCheck
 	CALL SB_AddScore
 	CALL MAN_LineCleared
-	;[TODO : Score Goes Here]
 
 _TL_TetraLogicGrav_Nocoll:
 	POP R2

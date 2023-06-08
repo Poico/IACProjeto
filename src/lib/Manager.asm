@@ -133,3 +133,21 @@ MAN_ShowWinScreen:
 _MAN_WinStuckLoop:
 	DI
 	JMP _MAN_WinStuckLoop ;infinite loop for win condition
+
+;Changes background to lose screen
+MAN_ShowLoseScreen:
+	PUSH R0
+	MOV R0, _MAN_LOSE_BACKGROUND
+	CALL MD_SetBack ; Call Function Set
+	CALL IT_DisableGameInterrupts
+	CALL MD_ClearScreen
+	CALL SB_DisableDrawFlag
+	CALL TL_DisableDrawFlag
+	CALL TL_DisableGravityFlag
+	POP R0
+	JMP _MAN_LoseStuckLoop
+	RET ;Here to conserve structure, never reached
+	
+_MAN_LoseStuckLoop:
+	DI
+	JMP _MAN_LoseStuckLoop ;infinite loop for lose condition
