@@ -13,3 +13,9 @@ Controls:
 -Key 9 "slams" the tetrino down
 -Key D pauses the game
 -Key F begins the game
+
+(if private > _)[NameSpace]_[FunctionName](_[SubPart])
+NameSpace is the acronim of the original files name
+functionname is a functionname
+subpart is a jump label within the function it self
+if the label starts whit a _ then it means its a "private" and should no be called from the outside
