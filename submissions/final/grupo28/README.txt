@@ -6,33 +6,34 @@
 ; *********************************************************************************
 
 
-Controls:
--Key 0 is used to start/stop background music
--Key 1 is used to rotate the tetrinos
--Keys 4/6 move the tetrinos left/right respectively
--Key 9 "slams" the tetrino down
--Key D pauses the game
--Key F begins the game
+The Project uses a Library aproach to ease the develepement of it.
+The libraries are:
 
-Misspeling After Misspeling
+TetraLogic ;Works with all logic involved in for the game to be playable
+ScoreBar 
+RNG ;Random Number Genration
+MediaDrive ;All functions involved with Media Center
+Manager ;All functions that involve UI
+Keyboard
+Interrupts
+Header ; The Header of the file with our names
+BCD ; Binary to Decimal
 
-The Project Uses a Library aprouche to ease the develepement of it
-SubParts of the project like RNG/MANAGER/INTERRUPTS were made in seperate files
-We then used a tool called Merger to merge them toggether to something that pepe can read and run
+We then used a tool called Merger to merge them together to something that the simulator can read and run.
 
 [===========================DIDAS EXPLAINS IT===========================]
 
-The Benefits of makeing like this is that multiple files can be modified by different users at the same time making develeping easer
-We also used Trello to divide tasks Amoung Us to make the work load faster and not clash when two people where wasting time both doing the same thing
-To Manage files and sincing bettwen group members we used github
+The Benefits of making it like this are that multiple files can be modified by different developers at the same time making developing easier.
+We also used Trello to divide tasks AMONG US to make the work more efficient and organized so we could manage our time better
+To Manage files and syncing between group members we used github
 
-We also did other tool that had an impact on develeping but dont leave a mark on the source code
-one was a styling to NotePad++ To also make it easer hilinghting Registers and Comands
+We also did other tool that had an impact on develeping but dont leave a mark on the source code.
+the code highlighting for NotePad++ to make it more readble and easy for the development
 
 [===========================DIDAS MAYBE EXPANDS THIS===========================]
 
-the outher one was a program that could turn small images into somthing that our Media Center Manager could draw to screen
-this one end up not being used
+The other one was a program that could turn small images into something that our Media Center Manager could draw to screen
+this one ended up not being used
 
 (if private > _)[NameSpace]_[FunctionName](_[SubPart])
 NameSpace is the acronim of the original files name
