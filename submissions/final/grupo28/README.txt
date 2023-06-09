@@ -6,46 +6,71 @@
 ; *********************************************************************************
 
 
-The Project uses a Library aproach to ease the develepement of it.
+/==========================\
+|=========Libraries========|
+\==========================/
+The project uses a library aproach for ease of its develepement.
 The libraries are:
 
-TetraLogic ;Works with all logic involved in for the game to be playable
-ScoreBar 
-RNG ;Random Number Genration
-MediaDrive ;All functions involved with Media Center
-Manager ;All functions that involve UI
-Keyboard
-Interrupts
-Header ; The Header of the file with our names
-BCD ; Binary to Decimal
+TetraLogic: Works with all logic related to tetrino movement and collision checking
+ScoreBar: Handles the score calculation and displaying, both on the screen and hex displays
+RNG: Random Number Genration
+MediaDrive: All functions related to the Media Center
+Manager: All functions related UI and menus
+Keyboard: All functions that interface with the keyboard and key handling
+Interrupts: Configures hardware interrupts and the callback functions
+Header: The Header of the file with our names
+BCD: Binary Coded Decimal related functions and drawing to the hex displays
 
-We then used a tool called Merger to merge them together to something that the simulator can read and run.
 
-[===========================DIDAS EXPLAINS IT===========================]
+/==========================\
+|==========Tools===========|
+\==========================/
+We also developed external tools to aid in the development of the project, those being:
+-Merger
+-Styling
+-Pallete
 
-The Benefits of making it like this are that multiple files can be modified by different developers at the same time making developing easier.
-We also used Trello to divide tasks AMONG US to make the work more efficient and organized so we could manage our time better
-To Manage files and syncing between group members we used github
+[======Merger======]
+When we submitted the intermediate version of the project this tool simply pasted file contents where requested.
+For example, if in the code there was a statement such as '#include:lib/MediaDrive.asm' the tool would replace that line with the
+entire contents of './lib/MediaDrive.asm', granted this file had not been previously included.
 
-We also did other tool that had an impact on develeping but dont leave a mark on the source code.
-the code highlighting for NotePad++ to make it more readble and easy for the development
+For the final version of the progect the tool was updated to support 'sections'. These would be place in the code to denote placement in the final source file.
+For example, the code found after '#section:equ' would be placed before any code in the 'data' or 'text' sections, to ensure all EQU and variables would be placed
+together at the beggining of the final file.
 
-[===========================DIDAS MAYBE EXPANDS THIS===========================]
+None of the directives written for the Merger tool are included in the final file as they would prevent assembling.
 
-The other one was a program that could turn small images into something that our Media Center Manager could draw to screen
-this one ended up not being used
+The benefits of making it like this are that multiple files can be modified concurrently by different developers making development and source control easier.
+We also used Trello to divide tasks between us to make the work more efficient and organized so we could better manage our time.
+To manage files and syncing between group members we used Github.
 
-All Of the Labels [And if not the we should fix that for the sake of constinstaty] follow a naming schema we delevoped so that unwanted or confusing calls are not development
-it also help in legibilaty sence its eases the reading of labels and what and where they work
+[======Syntax======]
+We made a syntax highlighting extension for Notepad++ to support the PEPE-16 assembly and Macros, as well as the directives for the merger.
+This allowed faster recognition of typing errors and greatly improved code readability.
 
-(_)[NameSpace]_[Name](_[SubPart])
-NameSpace: the acronim of the original files name
-ex: MediaCenter > MD / Manager > MAN
+[======Pallete=====]
+The other program we made could turn small images into something that our Media Center Drive could draw to screen: Sprites.
+This one ended up not being used for the project.
+
+
+/==========================\
+|=======Label naming=======|
+\==========================/
+All of the labels follow a naming scheme we created at the start of the project so that repeated or unclear labels were not present in the code.
+It also helped with legibilaty since its eases the reading of labels by clearly stating how they work and where they are.
+
+The scheme is as follows:
+
+	[_]<NameSpace>_<Name>[_<SubPart>]
+
+NameSpace: the acronim of the containing file name
+(ex: MediaCenter -> MD; Manager -> MAN)
 Name: its the name of the label
-ex: DrawRect / PlayMenu
-SubPart: is a subname of the a bigger system that can be a Routine[?] or Data
-ex: width in _MD_DrawRect_width / ANG0 in _TL_invL_ANG0
-if the label starts whit a _ then it means its a "private" and should no be used from the outside
-ex: _MD_DrawRect_width is something that should not be used from the outside
-while
-ex: MAN_PlayMenu can be used from the outside
+(ex: DrawRect / PlayMenu)
+SubPart: is a subname of the a bigger system that can be a Routine or Data
+(ex: width in _MD_DrawRect_width; ANG0 in _TL_invL_ANG0)
+If the label starts with '_' then it means it is "private" and should no be used outside its corresponding file.
+(ex: _MD_DrawRect_width is something that should not be used externally,
+while MAN_PlayMenu can be used externally)
