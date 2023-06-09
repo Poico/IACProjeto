@@ -20,7 +20,7 @@ _SB_Color:
 	WORD 0FF00H
 	
 _SB_Score:
-	WORD 4
+	WORD 0
 
 #section:text
 ; Draws score bar and writes to hex display
@@ -163,6 +163,7 @@ SB_AddScore:
 	PUSH R0
 	PUSH R1
 	
+	CALL MAN_LineCleared
 	MOV R1, 1
 	
 _SB_AddScore_loop:

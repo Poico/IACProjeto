@@ -7,12 +7,9 @@ entry:
 	MOV SP, stack_top
 	
 	CALL IT_SetupInterrupts
-	CALL IT_DisableGameInterrupts
 	
 	CALL MD_InitMedia
 	CALL MAN_MainMenu
-	
-	CALL TL_InitTetraLogic
 	
 	CALL MAN_StartBackgroundMusic
 	CALL MD_ClearScreen
@@ -480,6 +477,7 @@ SB_AddScore:
 	PUSH R0
 	PUSH R1
 	
+	CALL MAN_LineCleared
 	MOV R1, 1
 	
 _SB_AddScore_loop:
@@ -522,360 +520,6 @@ SB_DisableDrawFlag:
 ; includes
 ; Manager.asm
 
-
-;Sets Main Menu Background
-MAN_MainMenu:
-
-	PUSH R0
-	
-	MOV R0, _MAN_MENU_BACKGROUND
-	CALL MD_SetBack ; Call Function Set
-	
-	POP R0
-	
-	RET
-	
-;Sets Play Menu Background
-MAN_PlayMenu:
-	PUSH R0
-	
-	MOV R0, _MAN_PLAY_BACKGROUND
-	CALL MD_SetBack ; Call Function Set
-	CALL IT_EnableGameInterrupts
-	
-	POP R0
-	RET
-
-	
-;Sets Pause Menu Background
-MAN_PauseClick:
-	PUSH R0
-	PUSH R1
-	
-	MOV R1, [_MAN_TogglePause]
-	CMP R1 , 0
-	JEQ _MAN_Pause
-	
-_MAN_UnPause:
-	CALL MAN_PlayMenu
-	MOV R0, 0
-	MOV [_MAN_TogglePause], R0
-	CALL IT_EnableGameInterrupts
-	JMP _MAN_PauseClick_end
-	
-_MAN_Pause:
-	MOV R0, _MAN_PAUSE_BACKGROUND
-	CALL MD_SetBack ; Call Function Set
-	MOV R0, 1
-	MOV [_MAN_TogglePause], R0
-	CALL IT_DisableGameInterrupts
-	
-_MAN_PauseClick_end:
-	POP R1
-	POP R0
-	RET
-
-MAN_StartBackgroundMusic:
-	PUSH R0
-	MOV R0, 0 ;ID of Background Music
-	CALL MD_Loop ;function to play music on loop 
-	
-	POP R0
-	RET
-
-;Plays One Time Sound of the Line Clear
-MAN_LineCleared:
-	PUSH R0 ; ID for the Sound
-	
-	MOV R0 , 1 ; Set LineClearedSound (ID-1)
-	CALL MD_Play
-	
-	POP R0
-	RET
-
-
-;Plays Background Music on Loop 
-MAN_BackgroundMusicClick:
-	
-	PUSH R0 ; ID for the Music
-	PUSH R1 
-	
-	MOV R1 , [_MAN_ToggleMusic]
-	CMP R1 , 0
-	JNZ _MAN_PlayMusic
-_MAN_StopMusic:
-	MOV R0, 0
-	CALL MD_Pause
-	MOV R0, 1
-	MOV [_MAN_ToggleMusic], R0
-	JMP _MAN_BackgroundMusicClick_end
-	
-_MAN_PlayMusic:
-	MOV R0 , 0 
-	CALL MD_Unpause ; Call Function Set
-	MOV [_MAN_TogglePause], R0
-
-_MAN_BackgroundMusicClick_end:
-	POP R1
-	POP R0
-	RET
-
-
-;Changes background to win screen
-MAN_ShowWinScreen:
-	PUSH R0
-	MOV R0, _MAN_WIN_BACKGROUND
-	CALL MD_SetBack ; Call Function Set
-	CALL IT_DisableGameInterrupts
-	CALL MD_ClearScreen
-	CALL SB_DisableDrawFlag
-	CALL TL_DisableDrawFlag
-	CALL TL_DisableGravityFlag
-	POP R0
-	JMP _MAN_WinStuckLoop
-	RET ;Here to conserve structure, never reached
-	
-_MAN_WinStuckLoop:
-	DI
-	JMP _MAN_WinStuckLoop ;infinite loop for win condition
-
-;Changes background to lose screen
-MAN_ShowLoseScreen:
-	PUSH R0
-	MOV R0, _MAN_LOSE_BACKGROUND
-	CALL MD_SetBack ; Call Function Set
-	CALL IT_DisableGameInterrupts
-	CALL MD_ClearScreen
-	CALL SB_DisableDrawFlag
-	CALL TL_DisableDrawFlag
-	CALL TL_DisableGravityFlag
-	POP R0
-	JMP _MAN_LoseStuckLoop
-	RET ;Here to conserve structure, never reached
-	
-_MAN_LoseStuckLoop:
-	DI
-	JMP _MAN_LoseStuckLoop ;infinite loop for lose condition
-
-; Returns first pressed key in R0
-KB_GetKey:
-	PUSH R1 	; keyboard output pointer (write test)
-	PUSH R2 	; keyboard input pointer (read key)
-	PUSH R3 	; current bit for test
-	PUSH R4 	; test bit shift counter
-	PUSH R5		; bit mask & R0 shift counter
-
-	MOV R1, _KB_KEYO
-	MOV R2, _KB_KEYI
-	MOV R3, 1
-	XOR R4, R4
-	MOV R5, 0FH
-	
-_KB_GetKey_loop:
-	MOVB [R1], R3		; put test bit
-	MOVB R0, [R2]		; read mask
-	AND R0, R5			; mask first 4 bits
-	CMP R0, 0			; MOVB doesn't affect flags
-	JNE _KB_GetKey_dec	; found a key press
-	SHL R3, 1			; shift test bit
-	ADD R4, 1			; increment shift counter
-	CMP R4, 4			; check loop end (4 bit shifts)
-	JNE _KB_GetKey_loop ; repeat loop
-	MOV R0, 0FFFFH		; -1 for empty
-	JMP _KB_GetKey_end
-	
-_KB_GetKey_dec: 		; decode
-	XOR R5, R5			; R5 = 0
-	
-_KB_GetKey_dlp:			; get bit position
-	ADD R5, 1			; R5++
-	SHR R0, 1			; R0 >>= 1
-	JNE _KB_GetKey_dlp	; while (R0) goto _KB_GetKey_dlp
-
-_KB_GetKey_df:
-	SUB R5, 1			; R5-- (it's in [1,4])
-	SHL R4, 2			; R0 = (R4 << 2) | R5
-	OR R5, R4
-	MOV R0, R5
-	
-_KB_GetKey_end:
-	POP R5
-	POP R4
-	POP R3
-	POP R2
-	POP R1
-	RET
-
-
-; Returns non-zero in R1 if the key specified in R0 is pressed
-KB_IsKeyPressed:
-	MOV R1, R0
-	CALL KB_GetKey
-	CMP R0, R1
-	MOV R1, R0
-	JEQ _KB_IsKeyPressed_end
-	XOR R1, R1
-	
-_KB_IsKeyPressed_end:
-	RET
-
-
-; Polls keyboard and sets up the key
-KB_PollKey:
-	PUSH R0
-	PUSH R1						; Press_Handles base pointer
-	PUSH R2						; Hold_Handles base pointer
-	PUSH R3						; Auxiliar
-	
-	MOV R1, _KB_Press_Handles	; Load pointers
-	MOV R2, _KB_Hold_Handles
-	
-_KB_PollKey_start:
-	CALL KB_GetKey
-	
-	CMP R0, 0FFFFH					; Check for empty key
-	JEQ _KB_PollKey_end				; Skip if empty
-	
-	SHL R0, 1						; Multiply by 2 (word size)
-	
-_KB_PollKey_hold:
-	MOV R3, [_KB_NextKeyHoldHandle] ; Check for handle already set
-	TEST R3, R3						; (Update Z flag)
-	JNE _KB_PollKey_press			; Ignore if handle is set
-	
-	MOV R3, [R2 + R0]				; Get handle
-	MOV [_KB_NextKeyHoldHandle], R3	; Set next handle
-
-_KB_PollKey_press:
-	MOV R3, [_KB_NextKeyPressHandle]; Check for handle already set
-	TEST R3, R3						; (Update Z flag)
-	JNE _KB_PollKey_end				; Ignore if handle is set
-	
-	MOV R3, [_KB_LastKeyPressed]	; Check if key pressed changed
-	CMP R0, R3
-	JEQ _KB_PollKey_end				; Skip if press didn't change
-	
-	MOV R3, [R1 + R0]				; Get handle
-	MOV [_KB_NextKeyPressHandle], R3; Set next handle
-	
-_KB_PollKey_end:
-	MOV [_KB_LastKeyPressed], R0	; Update last key pressed
-
-	POP R3
-	POP R2
-	POP R1
-	POP R0
-	RET
-
-KB_EnableHandle:
-	PUSH R0
-	MOV R0, 1
-	MOV [_KB_HandleFlag], R0
-	POP R0
-	RET
-
-; Polls keyboard and executes assigned functions
-KB_DoHandles:
-	PUSH R0	; Handle pointer
-	
-	MOV R0, [_KB_HandleFlag]
-	TEST R0, R0
-	JEQ _KB_DoHandles_end
-	XOR R0, R0
-	MOV [_KB_HandleFlag], R0		; Reset handle flag
-	
-_KB_DoHandles_hold:
-	MOV R0, [_KB_NextKeyHoldHandle]	; Load handle pointer
-	TEST R0, R0						; (Update Z flag)
-	JEQ _KB_DoHandles_press			; Skip if NULL
-	CALL R0							; Call handle
-
-_KB_DoHandles_press:
-	MOV R0, [_KB_NextKeyPressHandle]; Load handle pointer
-	TEST R0, R0						; (Update Z flag)
-	JEQ _KB_DoHandles_reset			; Skip if NULL
-	CALL R0							; Call handle
-	
-_KB_DoHandles_reset:
-	XOR R0, R0						; Reset handle pointers
-	MOV [_KB_NextKeyHoldHandle], R0
-	MOV [_KB_NextKeyPressHandle], R0
-
-_KB_DoHandles_end:
-	POP R0
-	RET
-
-; Sets all interrupt flags as needed and configures the BTE
-IT_SetupInterrupts:
-	PUSH R0
-	PUSH R1
-	
-	MOV BTE, _IT_interrupt_vectors	; load interrupt vector table
-	MOV R0, RE
-	MOV R1, _IT_CLR_TV_TD			; Clear TV & TD
-	AND R0, R1
-	MOV R1, _IT_SET_INTS			; Set IE and IE# (0-3)
-	OR R0, R1
-	MOV RE, R0
-	
-	POP R1
-	POP R0
-	RET
-
-
-; Pauses interrupts related to gameplay
-IT_DisableGameInterrupts:
-	PUSH R0
-	MOV R0, _IT_CLR_GINTS			; Load bitmask
-	AND RE, R0						; Clear interrupt bits
-	POP R0
-	RET
-
-
-; Resumes interrupts related to gameplay
-IT_EnableGameInterrupts:
-	PUSH R0
-	MOV R0, _IT_SET_GINTS			; Load bitmask
-	OR RE, R0						; Set interrupts bits
-	POP R0
-	RET
-
-; ===Interrupt handlers===
-
-_IT_INT0:
-_IT_drawINT:
-	CALL SB_EnableDrawFlag
-	CALL TL_EnableDrawFlag
-	RFE
-	
-_IT_INT1:
-_IT_animationINT:
-	CALL SB_UpdateColor ; Should be inlined
-	RFE
-	
-_IT_INT2:
-_IT_gravityINT:
-	CALL TL_EnableGravityFlag
-	RFE
-	
-_IT_INT3:
-_IT_inputINT:
-	CALL KB_EnableHandle ; Should be inlined
-	RFE
-	
-_IT_EXCESSO:
-_IT_DIV0:
-_IT_Discard:
-	RFE
-	
-_IT_COD_INV:
-	RFE
-	
-_IT_D_DESALINHADO:
-	RFE
-	
-_IT_I_DESALINHADO:
-	RFE
 ;TetraLogic.asm
 ;Holding itself together with Hopes And Dreams~~~
 
@@ -1642,7 +1286,6 @@ TL_TetraLogicGrav:
 	CALL TL_MakeNextTetra
 	CALL TL_BoardCheck
 	CALL SB_AddScore
-	CALL MAN_LineCleared
 
 _TL_TetraLogicGrav_Nocoll:
 	POP R2
@@ -1776,3 +1419,369 @@ TL_DisableGravityFlag:
 	MOV [_TL_GravFlag], R0
 	POP R0
 	RET
+
+;Sets Main Menu Background
+MAN_MainMenu:
+	PUSH R0
+	
+	XOR R0, R0
+	MOV [_MAN_ToggleGame], R0
+	MOV R0, _MAN_MENU_BACKGROUND
+	CALL MD_SetBack ; Call Function Set
+	
+	POP R0
+	RET
+	
+;Sets Play Menu Background
+MAN_PlayMenu:
+	PUSH R0
+	
+	MOV R0, 1
+	MOV [_MAN_ToggleGame], R0
+	MOV R0, _MAN_PLAY_BACKGROUND
+	CALL MD_SetBack ; Call Function Set
+	CALL SB_ResetScore
+	CALL TL_InitTetraLogic
+	CALL IT_EnableGameInterrupts
+	
+	POP R0
+	RET
+
+	
+;Sets Pause Menu Background
+MAN_PauseClick:
+	PUSH R0
+	PUSH R1
+	
+	
+	MOV R0, [_MAN_ToggleGame]
+	CMP R0, 0
+	JEQ _MAN_PauseClick_end
+	MOV R1, [_MAN_TogglePause]
+	CMP R1, 0
+	JEQ _MAN_Pause
+	
+_MAN_UnPause:
+	MOV R0, _MAN_PLAY_BACKGROUND
+	CALL MD_SetBack ; Call Function Set
+	MOV R0, 0
+	MOV [_MAN_TogglePause], R0
+	CALL IT_EnableGameInterrupts
+	JMP _MAN_PauseClick_end
+	
+_MAN_Pause:
+	MOV R0, _MAN_PAUSE_BACKGROUND
+	CALL MD_SetBack ; Call Function Set
+	MOV R0, 1
+	MOV [_MAN_TogglePause], R0
+	CALL IT_DisableGameInterrupts
+	CALL MD_ClearScreen
+	
+_MAN_PauseClick_end:
+	POP R1
+	POP R0
+	RET
+
+MAN_StartBackgroundMusic:
+	PUSH R0
+	MOV R0, 0 ;ID of Background Music
+	CALL MD_Loop ;function to play music on loop 
+	
+	POP R0
+	RET
+
+;Plays One Time Sound of the Line Clear
+MAN_LineCleared:
+	PUSH R0 ; ID for the Sound
+	
+	MOV R0, _MAN_LNE_CLR_ID
+	CALL MD_Play
+	
+	POP R0
+	RET
+
+
+;Plays Background Music on Loop 
+MAN_BackgroundMusicClick:
+	PUSH R0 ; ID for the Music
+	PUSH R1 
+	
+	MOV R1, [_MAN_ToggleMusic]
+	CMP R1, 0
+	JEQ _MAN_PlayMusic
+	
+_MAN_StopMusic:
+	MOV R0, _MAN_MUSIC_ID
+	CALL MD_Pause ; Call Function Set
+	XOR R0, R0
+	MOV [_MAN_ToggleMusic], R0
+	JMP _MAN_BackgroundMusicClick_end
+	
+_MAN_PlayMusic:
+	MOV R0, _MAN_MUSIC_ID
+	CALL MD_Unpause ; Call Function Set
+	MOV R0, 1
+	MOV [_MAN_TogglePause], R0
+
+_MAN_BackgroundMusicClick_end:
+	POP R1
+	POP R0
+	RET
+
+
+;Changes background to win screen
+MAN_ShowWinScreen:
+	PUSH R0
+	XOR R0, R0
+	MOV [_MAN_ToggleGame], R0
+	MOV R0, _MAN_WIN_BACKGROUND
+	CALL MD_SetBack ; Call Function Set
+	CALL IT_DisableGameInterrupts
+	CALL MD_ClearScreen
+	POP R0
+	JMP _MAN_StuckLoop
+	RET ;Here to conserve structure, never reached
+
+;Changes background to lose screen
+MAN_ShowLoseScreen:
+	PUSH R0
+	XOR R0, R0
+	MOV [_MAN_ToggleGame], R0
+	MOV R0, _MAN_LOSE_BACKGROUND
+	CALL MD_SetBack ; Call Function Set
+	CALL IT_DisableGameInterrupts
+	CALL MD_ClearScreen
+	JMP _MAN_StuckLoop
+	
+_MAN_StuckLoop:
+	; Keep interrupts for keyboard
+	CALL KB_PollKey
+	CALL KB_DoHandles
+	MOV R0, [_MAN_ToggleGame]
+	CMP R0, 0
+	JEQ _MAN_StuckLoop ;infinite loop for win/lose condition
+	POP R0
+	RET
+
+; Returns first pressed key in R0
+KB_GetKey:
+	PUSH R1 	; keyboard output pointer (write test)
+	PUSH R2 	; keyboard input pointer (read key)
+	PUSH R3 	; current bit for test
+	PUSH R4 	; test bit shift counter
+	PUSH R5		; bit mask & R0 shift counter
+
+	MOV R1, _KB_KEYO
+	MOV R2, _KB_KEYI
+	MOV R3, 1
+	XOR R4, R4
+	MOV R5, 0FH
+	
+_KB_GetKey_loop:
+	MOVB [R1], R3		; put test bit
+	MOVB R0, [R2]		; read mask
+	AND R0, R5			; mask first 4 bits
+	CMP R0, 0			; MOVB doesn't affect flags
+	JNE _KB_GetKey_dec	; found a key press
+	SHL R3, 1			; shift test bit
+	ADD R4, 1			; increment shift counter
+	CMP R4, 4			; check loop end (4 bit shifts)
+	JNE _KB_GetKey_loop ; repeat loop
+	MOV R0, 0FFFFH		; -1 for empty
+	JMP _KB_GetKey_end
+	
+_KB_GetKey_dec: 		; decode
+	XOR R5, R5			; R5 = 0
+	
+_KB_GetKey_dlp:			; get bit position
+	ADD R5, 1			; R5++
+	SHR R0, 1			; R0 >>= 1
+	JNE _KB_GetKey_dlp	; while (R0) goto _KB_GetKey_dlp
+
+_KB_GetKey_df:
+	SUB R5, 1			; R5-- (it's in [1,4])
+	SHL R4, 2			; R0 = (R4 << 2) | R5
+	OR R5, R4
+	MOV R0, R5
+	
+_KB_GetKey_end:
+	POP R5
+	POP R4
+	POP R3
+	POP R2
+	POP R1
+	RET
+
+
+; Returns non-zero in R1 if the key specified in R0 is pressed
+KB_IsKeyPressed:
+	MOV R1, R0
+	CALL KB_GetKey
+	CMP R0, R1
+	MOV R1, R0
+	JEQ _KB_IsKeyPressed_end
+	XOR R1, R1
+	
+_KB_IsKeyPressed_end:
+	RET
+
+
+; Polls keyboard and sets up the key
+KB_PollKey:
+	PUSH R0
+	PUSH R1						; Press_Handles base pointer
+	PUSH R2						; Hold_Handles base pointer
+	PUSH R3						; Auxiliar
+	
+	MOV R1, _KB_Press_Handles	; Load pointers
+	MOV R2, _KB_Hold_Handles
+	
+_KB_PollKey_start:
+	CALL KB_GetKey
+	
+	CMP R0, 0FFFFH					; Check for empty key
+	JEQ _KB_PollKey_end				; Skip if empty
+	
+	SHL R0, 1						; Multiply by 2 (word size)
+	
+_KB_PollKey_hold:
+	MOV R3, [_KB_NextKeyHoldHandle] ; Check for handle already set
+	TEST R3, R3						; (Update Z flag)
+	JNE _KB_PollKey_press			; Ignore if handle is set
+	
+	MOV R3, [R2 + R0]				; Get handle
+	MOV [_KB_NextKeyHoldHandle], R3	; Set next handle
+
+_KB_PollKey_press:
+	MOV R3, [_KB_NextKeyPressHandle]; Check for handle already set
+	TEST R3, R3						; (Update Z flag)
+	JNE _KB_PollKey_end				; Ignore if handle is set
+	
+	MOV R3, [_KB_LastKeyPressed]	; Check if key pressed changed
+	CMP R0, R3
+	JEQ _KB_PollKey_end				; Skip if press didn't change
+	
+	MOV R3, [R1 + R0]				; Get handle
+	MOV [_KB_NextKeyPressHandle], R3; Set next handle
+	
+_KB_PollKey_end:
+	MOV [_KB_LastKeyPressed], R0	; Update last key pressed
+
+	POP R3
+	POP R2
+	POP R1
+	POP R0
+	RET
+
+KB_EnableHandle:
+	PUSH R0
+	MOV R0, 1
+	MOV [_KB_HandleFlag], R0
+	POP R0
+	RET
+
+; Polls keyboard and executes assigned functions
+KB_DoHandles:
+	PUSH R0	; Handle pointer
+	
+	MOV R0, [_KB_HandleFlag]
+	TEST R0, R0
+	JEQ _KB_DoHandles_end
+	XOR R0, R0
+	MOV [_KB_HandleFlag], R0		; Reset handle flag
+	
+_KB_DoHandles_hold:
+	MOV R0, [_KB_NextKeyHoldHandle]	; Load handle pointer
+	TEST R0, R0						; (Update Z flag)
+	JEQ _KB_DoHandles_press			; Skip if NULL
+	CALL R0							; Call handle
+
+_KB_DoHandles_press:
+	MOV R0, [_KB_NextKeyPressHandle]; Load handle pointer
+	TEST R0, R0						; (Update Z flag)
+	JEQ _KB_DoHandles_reset			; Skip if NULL
+	CALL R0							; Call handle
+	
+_KB_DoHandles_reset:
+	XOR R0, R0						; Reset handle pointers
+	MOV [_KB_NextKeyHoldHandle], R0
+	MOV [_KB_NextKeyPressHandle], R0
+
+_KB_DoHandles_end:
+	POP R0
+	RET
+
+; Sets all interrupt flags as needed and configures the BTE
+IT_SetupInterrupts:
+	PUSH R0
+	PUSH R1
+	
+	MOV BTE, _IT_interrupt_vectors	; load interrupt vector table
+	MOV R0, RE
+	MOV R1, _IT_CLR_TV_TD			; Clear TV & TD
+	AND R0, R1
+	MOV R1, _IT_SET_INTS			; Set IE and IE# (0-3)
+	OR R0, R1
+	MOV RE, R0
+	
+	POP R1
+	POP R0
+	RET
+
+
+; Pauses interrupts related to gameplay
+IT_DisableGameInterrupts:
+	PUSH R0
+	MOV R0, _IT_CLR_GINTS			; Load bitmask
+	AND RE, R0						; Clear interrupt bits
+	CALL SB_DisableDrawFlag
+	CALL TL_DisableDrawFlag
+	CALL TL_DisableGravityFlag
+	POP R0
+	RET
+
+
+; Resumes interrupts related to gameplay
+IT_EnableGameInterrupts:
+	PUSH R0
+	MOV R0, _IT_SET_GINTS			; Load bitmask
+	OR RE, R0						; Set interrupts bits
+	POP R0
+	RET
+
+; ===Interrupt handlers===
+
+_IT_INT0:
+_IT_drawINT:
+	CALL SB_EnableDrawFlag
+	CALL TL_EnableDrawFlag
+	RFE
+	
+_IT_INT1:
+_IT_animationINT:
+	CALL SB_UpdateColor ; Should be inlined
+	RFE
+	
+_IT_INT2:
+_IT_gravityINT:
+	CALL TL_EnableGravityFlag
+	RFE
+	
+_IT_INT3:
+_IT_inputINT:
+	CALL KB_EnableHandle ; Should be inlined
+	RFE
+	
+_IT_EXCESSO:
+_IT_DIV0:
+_IT_Discard:
+	RFE
+	
+_IT_COD_INV:
+	RFE
+	
+_IT_D_DESALINHADO:
+	RFE
+	
+_IT_I_DESALINHADO:
+	RFE

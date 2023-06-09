@@ -17,12 +17,9 @@ entry:
 	MOV SP, stack_top
 	
 	CALL IT_SetupInterrupts
-	CALL IT_DisableGameInterrupts
 	
 	CALL MD_InitMedia
 	CALL MAN_MainMenu
-	
-	CALL TL_InitTetraLogic
 	
 	CALL MAN_StartBackgroundMusic
 	CALL MD_ClearScreen

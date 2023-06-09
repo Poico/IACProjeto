@@ -56,49 +56,7 @@ _SB_Color:
 	WORD 0FF00H
 	
 _SB_Score:
-	WORD 4
-
-_MAN_TogglePause:
 	WORD 0
-
-_MAN_ToggleMusic:
-	WORD 0
-
-_KB_Press_Handles:
-	;		0							1					2		3
-	WORD	MAN_BackgroundMusicClick,	TL_RotateTetra,		0,		0,
-	;		4						5	6					7
-			TL_MoveTetraLeft,		0,	TL_MoveTetraRight,	0,
-	;		8		9				A	B
-			0,		TL_SlamTetra,	0,	0,
-	;		C		D				E	F
-			0, 		MAN_PauseClick,	0, 	MAN_PlayMenu
-			
-_KB_Hold_Handles:
-	;		0		1		2		3
-	WORD	0,		0,		0,		0,
-	;		4		5		6		7
-			0,		0,		0,		0,
-	;		8		9		A		B
-			0,		0,		0,		0,
-	;		C		D		E		F
-			0, 		0,		0, 		0
-
-_KB_LastKeyPressed:
-	WORD 0
-	
-_KB_NextKeyPressHandle:
-	WORD 0
-_KB_NextKeyHoldHandle:
-	WORD 0
-	
-_KB_HandleFlag:
-	WORD 0
-
-_IT_interrupt_vectors:
-	WORD 	_IT_INT0,		_IT_INT1,	_IT_INT2,		_IT_INT3,
-			_IT_EXCESSO,	_IT_DIV0,	_IT_COD_INV,	_IT_D_DESALINHADO,	_IT_I_DESALINHADO
-
 
 ;this is where the RNG value is stored
 RNG_ADDRESS:
@@ -106,6 +64,7 @@ WORD 01B1EH ;Starting value can be anything
 
 
 _TL_TetraColors: WORD 0000H,	0FFF0H,		0FF00H,		0F5F8H,			0F0FFH,		0F00FH,		0FF80H,			0F70FH
+					; Empty
 _TL_Tetras: WORD	  0000H,	_TL_Square,	_TL_Z_Horz,	_TL_invZ_Horz,	_TL_I_Vert,	_TL_L_ANG0,	_TL_invL_ANG0,	_TL_T_ANG0
 					;Master Block
 					;NEXT SHAPE 	BL1X BL1Y BL2X BL2Y BL3X BL3Y BL4X BL4Y
@@ -154,4 +113,47 @@ _TL_DrawFlag:
 	WORD 0
 _TL_GravFlag:
 	WORD 0
+
+_MAN_ToggleGame:
+	WORD 0
+_MAN_TogglePause:
+	WORD 0
+_MAN_ToggleMusic:
+	WORD 1
+
+_KB_Press_Handles:
+	;		0							1					2		3
+	WORD	MAN_BackgroundMusicClick,	TL_RotateTetra,		0,		0,
+	;		4						5	6					7
+			TL_MoveTetraLeft,		0,	TL_MoveTetraRight,	0,
+	;		8		9				A	B
+			0,		TL_SlamTetra,	0,	0,
+	;		C		D				E	F
+			0, 		MAN_PauseClick,	0, 	MAN_PlayMenu
+			
+_KB_Hold_Handles:
+	;		0		1		2		3
+	WORD	0,		0,		0,		0,
+	;		4		5		6		7
+			0,		0,		0,		0,
+	;		8		9		A		B
+			0,		0,		0,		0,
+	;		C		D		E		F
+			0, 		0,		0, 		0
+
+_KB_LastKeyPressed:
+	WORD 0
+	
+_KB_NextKeyPressHandle:
+	WORD 0
+_KB_NextKeyHoldHandle:
+	WORD 0
+	
+_KB_HandleFlag:
+	WORD 0
+
+_IT_interrupt_vectors:
+	WORD 	_IT_INT0,		_IT_INT1,	_IT_INT2,		_IT_INT3,
+			_IT_EXCESSO,	_IT_DIV0,	_IT_COD_INV,	_IT_D_DESALINHADO,	_IT_I_DESALINHADO
+
 

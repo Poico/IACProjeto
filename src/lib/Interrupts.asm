@@ -8,6 +8,7 @@
 ; includes
 #include:ScoreBar.asm
 #include:keyboard.asm
+#include:TetraLogic.asm
 
 #section:equ
 _IT_CLR_TV_TD 	EQU 0FF3FH	; Bitmask to clear TV & TD
@@ -45,6 +46,9 @@ IT_DisableGameInterrupts:
 	PUSH R0
 	MOV R0, _IT_CLR_GINTS			; Load bitmask
 	AND RE, R0						; Clear interrupt bits
+	CALL SB_DisableDrawFlag
+	CALL TL_DisableDrawFlag
+	CALL TL_DisableGravityFlag
 	POP R0
 	RET
 

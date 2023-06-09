@@ -9,6 +9,7 @@ _TL_BoardArea EQU	200
 
 #section:data
 _TL_TetraColors: WORD 0000H,	0FFF0H,		0FF00H,		0F5F8H,			0F0FFH,		0F00FH,		0FF80H,			0F70FH
+					; Empty
 _TL_Tetras: WORD	  0000H,	_TL_Square,	_TL_Z_Horz,	_TL_invZ_Horz,	_TL_I_Vert,	_TL_L_ANG0,	_TL_invL_ANG0,	_TL_T_ANG0
 					;Master Block
 					;NEXT SHAPE 	BL1X BL1Y BL2X BL2Y BL3X BL3Y BL4X BL4Y
@@ -790,7 +791,6 @@ TL_TetraLogicGrav:
 	CALL TL_MakeNextTetra
 	CALL TL_BoardCheck
 	CALL SB_AddScore
-	CALL MAN_LineCleared
 
 _TL_TetraLogicGrav_Nocoll:
 	POP R2

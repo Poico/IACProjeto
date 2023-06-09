@@ -31,11 +31,16 @@ _SB_CORNER_X	EQU 25
 _SB_CORNER_Y	EQU 18
 _SB_MAX			EQU 100
 
+_TL_BoardArea EQU	200
+
 _MAN_MENU_BACKGROUND EQU	0
 _MAN_PLAY_BACKGROUND EQU	1
 _MAN_PAUSE_BACKGROUND EQU	2
 _MAN_WIN_BACKGROUND	EQU		3
 _MAN_LOSE_BACKGROUND EQU	4
+
+_MAN_MUSIC_ID EQU			0
+_MAN_LNE_CLR_ID EQU			1
 
 _KB_KEYO	EQU 0C000H ; write to test
 _KB_KEYI	EQU 0E000H ; read to check
@@ -44,6 +49,4 @@ _IT_CLR_TV_TD 	EQU 0FF3FH	; Bitmask to clear TV & TD
 _IT_SET_INTS 	EQU 01100H	; Bitmask to set IE and IE# (0-3)
 _IT_CLR_GINTS 	EQU 0F1FFH	; Bitmask to clear game interrupts IE# (0-2)
 _IT_SET_GINTS	EQU 00E00H	; Bitmask to set game interrupts IE# (0-2)
-
-_TL_BoardArea EQU	200
 
