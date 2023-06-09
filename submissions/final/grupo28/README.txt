@@ -35,14 +35,17 @@ the code highlighting for NotePad++ to make it more readble and easy for the dev
 The other one was a program that could turn small images into something that our Media Center Manager could draw to screen
 this one ended up not being used
 
-(if private > _)[NameSpace]_[FunctionName](_[SubPart])
-NameSpace is the acronim of the original files name
+All Of the Labels [And if not the we should fix that for the sake of constinstaty] follow a naming schema we delevoped so that unwanted or confusing calls are not development
+it also help in legibilaty sence its eases the reading of labels and what and where they work
+
+(_)[NameSpace]_[Name](_[SubPart])
+NameSpace: the acronim of the original files name
 ex: MediaCenter > MD / Manager > MAN
-functionname is a functionname
+Name: its the name of the label
 ex: DrawRect / PlayMenu
-subpart is a jump label within the function it self
-ex: width
-if the label starts whit a _ then it means its a "private" and should no be called from the outside
-ex: _MD_DrawRect_width is something that should not be called
+SubPart: is a subname of the a bigger system that can be a Routine[?] or Data
+ex: width in _MD_DrawRect_width / ANG0 in _TL_invL_ANG0
+if the label starts whit a _ then it means its a "private" and should no be used from the outside
+ex: _MD_DrawRect_width is something that should not be used from the outside
 while
-ex: MAN_PlayMenu can be called from the outside
+ex: MAN_PlayMenu can be used from the outside
