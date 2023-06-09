@@ -16,8 +16,8 @@ TetraLogic: Works with all logic related to tetrino movement and collision check
 ScoreBar: Handles the score calculation and displaying, both on the screen and hex displays
 RNG: Random Number Generation
 MediaDrive: All functions related to the Media Center
-Manager: All functions related UI and menus
-Keyboard: All functions that interface with the keyboard and key handling
+Manager: All functions related UI and Menus
+Keyboard: All functions that interact with the keyboard and key handling
 Interrupts: Configures hardware interrupts and the callback functions
 Header: The Header of the file with our names
 BCD: Binary Coded Decimal related functions and drawing to the hex displays
@@ -36,7 +36,7 @@ When we submitted the intermediate version of the project this tool simply paste
 For example, if in the code there was a statement such as '#include:lib/MediaDrive.asm' the tool would replace that line with the
 entire contents of './lib/MediaDrive.asm', granted this file had not been previously included.
 
-For the final version of the progect the tool was updated to support 'sections'. These would be place in the code to denote placement in the final source file.
+For the final version of the project the tool was updated to support 'sections'. These would be place in the code to denote placement in the final source file.
 For example, the code found after '#section:equ' would be placed before any code in the 'data' or 'text' sections, to ensure all EQU and variables would be placed
 together at the beggining of the final file.
 
