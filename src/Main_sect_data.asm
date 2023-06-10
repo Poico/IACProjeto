@@ -128,8 +128,8 @@ _KB_Press_Handles:
 			TL_MoveTetraLeft,		0,	TL_MoveTetraRight,	0,
 	;		8		9				A	B
 			0,		TL_SlamTetra,	0,	0,
-	;		C		D				E	F
-			0, 		MAN_PauseClick,	0, 	MAN_PlayMenu
+	;		C		D				E						F
+			0, 		MAN_PauseClick,	MAN_Exit, 				MAN_PlayMenu
 			
 _KB_Hold_Handles:
 	;		0		1		2		3

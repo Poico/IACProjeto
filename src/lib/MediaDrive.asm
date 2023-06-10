@@ -89,8 +89,6 @@ MD_ClearScreen:
 ;Input R0(Color)
 ;Output nothing
 ;Fills the background with a color
-;[WARNING:TALK TO TEACHER ABOUT THE N-PIXEL THING]
-;Best to not use this
 MD_ColorBack:
 	PUSH R1
 	PUSH R2

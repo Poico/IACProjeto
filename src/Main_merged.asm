@@ -42,6 +42,8 @@ _MAN_LOSE_BACKGROUND EQU	4
 _MAN_MUSIC_ID EQU			0
 _MAN_LNE_CLR_ID EQU			1
 
+_MAN_RemoveWarningCmd EQU	6040H
+
 _KB_KEYO	EQU 0C000H ; write to test
 _KB_KEYI	EQU 0E000H ; read to check
 
@@ -180,8 +182,8 @@ _KB_Press_Handles:
 			TL_MoveTetraLeft,		0,	TL_MoveTetraRight,	0,
 	;		8		9				A	B
 			0,		TL_SlamTetra,	0,	0,
-	;		C		D				E	F
-			0, 		MAN_PauseClick,	0, 	MAN_PlayMenu
+	;		C		D				E						F
+			0, 		MAN_PauseClick,	MAN_Exit, 				MAN_PlayMenu
 			
 _KB_Hold_Handles:
 	;		0		1		2		3
@@ -276,8 +278,6 @@ MD_ClearScreen:
 ;Input R0(Color)
 ;Output nothing
 ;Fills the background with a color
-;[WARNING:TALK TO TEACHER ABOUT THE N-PIXEL THING]
-;Best to not use this
 MD_ColorBack:
 	PUSH R1
 	PUSH R2
@@ -1773,6 +1773,16 @@ _MAN_StuckLoop:
 	JEQ _MAN_StuckLoop ;infinite loop for win/lose condition
 	POP R0
 	RET
+
+; "Exit" function
+MAN_Exit:
+	MOV R0, _MAN_MUSIC_ID 				
+	CALL MD_Stop 						; Stop music
+	CALL MD_ClearScreen 				; Clear screen
+	MOV [_MAN_RemoveWarningCmd],R0		; Clear background
+	DI
+_MAN_Exit_loop:
+	JMP _MAN_Exit_loop
 
 ; Returns first pressed key in R0
 KB_GetKey:

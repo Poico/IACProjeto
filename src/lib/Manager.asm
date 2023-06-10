@@ -16,6 +16,8 @@ _MAN_LOSE_BACKGROUND EQU	4
 _MAN_MUSIC_ID EQU			0
 _MAN_LNE_CLR_ID EQU			1
 
+_MAN_RemoveWarningCmd EQU	6040H
+
 #section:data
 _MAN_ToggleGame:
 	WORD 0
@@ -167,3 +169,13 @@ _MAN_StuckLoop:
 	JEQ _MAN_StuckLoop ;infinite loop for win/lose condition
 	POP R0
 	RET
+
+; "Exit" function
+MAN_Exit:
+	MOV R0, _MAN_MUSIC_ID 				
+	CALL MD_Stop 						; Stop music
+	CALL MD_ClearScreen 				; Clear screen
+	MOV [_MAN_RemoveWarningCmd],R0		; Clear background
+	DI
+_MAN_Exit_loop:
+	JMP _MAN_Exit_loop

@@ -65,8 +65,6 @@ MD_ClearScreen:
 ;Input R0(Color)
 ;Output nothing
 ;Fills the background with a color
-;[WARNING:TALK TO TEACHER ABOUT THE N-PIXEL THING]
-;Best to not use this
 MD_ColorBack:
 	PUSH R1
 	PUSH R2
@@ -1562,6 +1560,16 @@ _MAN_StuckLoop:
 	JEQ _MAN_StuckLoop ;infinite loop for win/lose condition
 	POP R0
 	RET
+
+; "Exit" function
+MAN_Exit:
+	MOV R0, _MAN_MUSIC_ID 				
+	CALL MD_Stop 						; Stop music
+	CALL MD_ClearScreen 				; Clear screen
+	MOV [_MAN_RemoveWarningCmd],R0		; Clear background
+	DI
+_MAN_Exit_loop:
+	JMP _MAN_Exit_loop
 
 ; Returns first pressed key in R0
 KB_GetKey:

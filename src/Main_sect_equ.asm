@@ -42,6 +42,8 @@ _MAN_LOSE_BACKGROUND EQU	4
 _MAN_MUSIC_ID EQU			0
 _MAN_LNE_CLR_ID EQU			1
 
+_MAN_RemoveWarningCmd EQU	6040H
+
 _KB_KEYO	EQU 0C000H ; write to test
 _KB_KEYI	EQU 0E000H ; read to check
 
