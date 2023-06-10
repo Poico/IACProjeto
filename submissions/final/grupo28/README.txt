@@ -1,8 +1,8 @@
 ; README.txt
 
 ; *******************************************************************************
-; * Projeto IAC 2022/23 - IST-UL - Versão Final									*
-; * Alunos: Rodrigo Gomes (106644) Diogo Diniz (106196) Tomás Antunes (106265)	*
+; * Projeto IAC 2022/23 - IST-UL - Versão Final                                 *
+; * Alunos: Rodrigo Gomes (106644) Diogo Diniz (106196) Tomás Antunes (106265)  *
 ; *******************************************************************************
 
 
