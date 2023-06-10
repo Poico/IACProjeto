@@ -74,3 +74,12 @@ SubPart: is a subname of the a bigger system that can be a routine or data
 If the label starts with '_' then it means it is "private" and should not be used outside its corresponding file.
 (ex: _MD_DrawRect_width is something that should not be used externally,
 while MAN_PlayMenu can be used externally)
+
+/==========================\
+|======Known problems======|
+\==========================/
+
+Despite having confirmed that the code takes the correct paths and writes to the
+appropriate MediaCentre ports, we could not get the muting of the music to work
+consistently, and we believe it is a bug in the simulator itself. It works the first
+time but from then on it doesn't seem to be functional.
