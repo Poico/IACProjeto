@@ -1,9 +1,9 @@
 ; README.txt
 
-; *********************************************************************************
-; * Projeto IAC 2022/23 - IST-UL - Versão Final
-; * Alunos: Rodrigo Gomes (106644) Diogo Diniz (106196) Tomás Antunes (106265)
-; *********************************************************************************
+; *******************************************************************************
+; * Projeto IAC 2022/23 - IST-UL - Versão Final									*
+; * Alunos: Rodrigo Gomes (106644) Diogo Diniz (106196) Tomás Antunes (106265)	*
+; *******************************************************************************
 
 
 /==========================\
@@ -18,8 +18,8 @@ RNG: Random Number Generation
 MediaDrive: All functions related to the Media Center
 Manager: All functions related UI and Menus
 Keyboard: All functions that interact with the keyboard and key handling
-Interrupts: Configures hardware interrupts and the callback functions
-Header: The Header of the file with our names
+Interrupts: Configures hardware interrupts and callback functions
+Header: The header of the file with our names
 BCD: Binary Coded Decimal related functions and drawing to the hex displays
 
 
@@ -59,18 +59,18 @@ This one ended up not being used for the project.
 |=======Label naming=======|
 \==========================/
 All of the labels follow a naming scheme we created at the start of the project so that repeated or unclear labels were not present in the code.
-It also helped with legibilaty since its eases the reading of labels by clearly stating how they work and where they are.
+It also helped with legibility since it eases the reading of labels by clearly stating how they work and where they are.
 
 The scheme is as follows:
 
-	[_]<NameSpace>_<Name>[_<SubPart>]
+	[_]<Namespace>_<Name>[_<SubPart>]
 
-NameSpace: the acronim of the containing file name
+Namespace: the acronym of the containing file name
 (ex: MediaCenter -> MD; Manager -> MAN)
 Name: its the name of the label
 (ex: DrawRect / PlayMenu)
-SubPart: is a subname of the a bigger system that can be a Routine or Data
+SubPart: is a subname of the a bigger system that can be a routine or data
 (ex: width in _MD_DrawRect_width; ANG0 in _TL_invL_ANG0)
-If the label starts with '_' then it means it is "private" and should no be used outside its corresponding file.
+If the label starts with '_' then it means it is "private" and should not be used outside its corresponding file.
 (ex: _MD_DrawRect_width is something that should not be used externally,
 while MAN_PlayMenu can be used externally)
